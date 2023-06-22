@@ -2,6 +2,9 @@
 
 echo "*****Running unit tests******"
 
+./gradlew spotlessApply --daemon
+
+git add .
 git stash -q --keep-index
 
 ./gradlew test

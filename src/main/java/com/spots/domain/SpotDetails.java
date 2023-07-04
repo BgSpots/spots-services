@@ -7,6 +7,5 @@ import lombok.Data;
 @Builder
 public class SpotDetails {
     private Spot spot;
-
     private String additionalInfo;
 }

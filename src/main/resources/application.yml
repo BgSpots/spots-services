@@ -1,0 +1,37 @@
+#spring:
+#  application:
+#    name: spring-oauth2-security-example
+#security:
+#  oauth2:
+#    client:
+#      clientId: 1320177058609022
+#      clientSecret: 2e19874fb67a7c7d99edaeeaf801677e
+#      accessTokenUri: https://graph.facebook.com/oauth/access_token
+#      userAuthorizationUri: https://www.facebook.com/dialog/oauth
+#      tokenName: oauth_token
+#      authenticationScheme: query
+#      clientAuthenticationScheme: form
+#    resource:
+#      userInfoUri: https://graph.facebook.com/me
+#
+
+# TODO all the confidential fields should be taken as env vars
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  data:
+    mongodb:
+      user: root
+      password: secret
+      uri: mongodb://localhost:27017/spots
+    redis:
+      host: localhost
+      port: 6379
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # a day

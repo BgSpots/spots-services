@@ -29,11 +29,16 @@ ext {
 }
 
 dependencies {
+    implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'

@@ -145,10 +145,8 @@ Note: This is just an exemplary class diagram to demonstrate the relationships b
    - `POST /api/auth/login/instagram` - Oauth with instagram
    - `POST /api/spots` - Create a new spot
    - `GET /api/spots/{spotId}` - Get spot details
-   - `POST /api/spots/{spotId}/conquer` - Conquer a spot
    - `GET /api/spots/{spotId}/reviews` - Get reviews for a spot
    - `POST /api/spots/{spotId}/reviews` - Add a review for a spot
-   - `POST /api/spots/{spotId}/proposals` - Propose a new spot
 
 2. Admin Endpoints:
    - `POST /api/admin/verify-email` - Verify user email

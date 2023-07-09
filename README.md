@@ -139,14 +139,14 @@ Note: This is just an exemplary class diagram to demonstrate the relationships b
 ### Endpoints
 
 1. User Endpoints:
-   - `POST /api/login/google` - Login with Google
-   - `POST /api/login/email` - Login with email and password
+   - `POST /api/auth/register` - Register
+   - `POST /api/auth/login` - Basic JWT login
+   - `POST /api/auth/login/facebook` - Oauth with facebook
+   - `POST /api/auth/login/instagram` - Oauth with instagram
    - `POST /api/spots` - Create a new spot
    - `GET /api/spots/{spotId}` - Get spot details
-   - `POST /api/spots/{spotId}/conquer` - Conquer a spot
    - `GET /api/spots/{spotId}/reviews` - Get reviews for a spot
    - `POST /api/spots/{spotId}/reviews` - Add a review for a spot
-   - `POST /api/spots/{spotId}/proposals` - Propose a new spot
 
 2. Admin Endpoints:
    - `POST /api/admin/verify-email` - Verify user email

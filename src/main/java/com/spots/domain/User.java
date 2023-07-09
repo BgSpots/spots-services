@@ -1,8 +1,8 @@
 package com.spots.domain;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import java.util.Collection;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,7 +16,9 @@ public class User implements UserDetails {
     private String id;
     private Role role;
     private String username;
-    @Email private String email;
+
+    @Email(message = "Email must be valid!")
+    private String email;
 
     @Size(min = 5, max = 15, message = "Password should be between 5 and 15 characters!")
     private String password;

@@ -4,19 +4,13 @@
 #security:
 #  oauth2:
 #    client:
-#      clientId: 1320177058609022
-#      clientSecret: 2e19874fb67a7c7d99edaeeaf801677e
-#      accessTokenUri: https://graph.facebook.com/oauth/access_token
-#      userAuthorizationUri: https://www.facebook.com/dialog/oauth
-#      tokenName: oauth_token
-#      authenticationScheme: query
-#      clientAuthenticationScheme: form
-#    resource:
-#      userInfoUri: https://graph.facebook.com/me
-#
-
-# TODO all the confidential fields should be taken as env vars
-
+#      clientId:
+#      clientSecret:
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
 server:
   port: 8080
   servlet:
@@ -24,8 +18,6 @@ server:
 spring:
   data:
     mongodb:
-      user: root
-      password: secret
       uri: mongodb://localhost:27017/spots
     redis:
       host: localhost
@@ -33,5 +25,5 @@ spring:
 application:
   security:
     jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      secret-key: ${SPOTS_SECRET}
       expiration: 86400000 # a day

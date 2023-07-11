@@ -1,13 +1,16 @@
 package com.spots.domain;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
+@Document
 public class Review {
+    private String id;
     private User user;
 
     @Min(1)

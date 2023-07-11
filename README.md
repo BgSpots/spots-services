@@ -151,4 +151,7 @@ Note: This is just an exemplary class diagram to demonstrate the relationships b
 2. Admin Endpoints:
    - `POST /api/admin/verify-email` - Verify user email
    - `POST /api/admin/revenue` - Generate revenue (ads or lightning network)
-   - `POST /api/admin/verify-payment` - Verify user payment
+   - `POST /api/admin/verify-payment` - Verify user payment  
+   - 
+### Jwt authentication diagram  
+![jwt-diagram](./jwt-diagram.png)

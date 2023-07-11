@@ -1,0 +1,29 @@
+#spring:
+#  application:
+#    name: spring-oauth2-security-example
+#security:
+#  oauth2:
+#    client:
+#      clientId:
+#      clientSecret:
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/spots
+    redis:
+      host: localhost
+      port: 6379
+application:
+  security:
+    jwt:
+      secret-key: ${SPOTS_SECRET}
+      expiration: 86400000 # a day

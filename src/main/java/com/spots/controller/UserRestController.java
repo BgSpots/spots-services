@@ -1,24 +1,27 @@
 package com.spots.controller;
 
-import com.spots.domain.Spot;
+
 import com.spots.domain.User;
+import com.spots.dto.UserDto;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidInputException;
-import com.spots.service.spots.SpotsService;
+
 import com.spots.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Random;
 
 @RestController
 @RequestMapping("/users")
+@SecurityRequirement(name = "Bearer Authentication")
 class UserRestController {
     @Autowired
     public UserService userService;
@@ -37,9 +40,13 @@ class UserRestController {
     }
     @PostMapping("/user")
     @Operation(summary = "Adds user", description = "Adds a new user entity.")
-    public ResponseEntity<?>  addUser(@RequestBody User user, HttpServletRequest request){
+    public ResponseEntity<?>  addUser(@RequestBody UserDto userDto, HttpServletRequest request){
         try {
-            user.setId(randomId());
+            User user = User.builder().id(randomId())
+                    .username(userDto.getUsername())
+                    .email(userDto.getEmail())
+                    .password(userDto.getPassword())
+                    .build();
 
             ApiSuccess successResponse=new ApiSuccess("addUser",userService.createUser(user));
             return ResponseEntity.ok(successResponse);
@@ -52,10 +59,10 @@ class UserRestController {
 
     @PutMapping("/user")
     @Operation(summary = "Updates user information", description = "Updates user entity.")
-    public ResponseEntity<?>  updateUser(@RequestBody User user,HttpServletRequest request){
+    public ResponseEntity<?>  updateUser(@RequestBody UserDto userDto,HttpServletRequest request){
         try {
 
-            ApiSuccess successResponse=new ApiSuccess("updateSpot",userService.updateUser(user));
+            ApiSuccess successResponse=new ApiSuccess("updateSpot",userService.updateUser(userDto));
             return ResponseEntity.ok(successResponse);
         } catch (EmailTakenException | InvalidInputException e) {
             ApiError error =

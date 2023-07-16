@@ -2,6 +2,7 @@ package com.spots.service.user;
 
 import com.spots.domain.Spot;
 import com.spots.domain.User;
+import com.spots.dto.UserDto;
 import com.spots.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,14 @@ public class UserService {
         return "User with this email already exists!";
     }
 
-    public String updateUser(User user){
+    public String updateUser(UserDto userDto){
 
-        if(!userRepository.existsById(user.getId())){
+        if(!userRepository.existsById(userDto.getId())){
+            User user = userRepository.findById(userDto.getId()).get();
+            user.setEmail(userDto.getEmail());
+            user.setUsername(userDto.getUsername());
+            user.setPassword(userDto.getPassword());
+
             userRepository.save(user);
             return  "User updated successfully!";
         }

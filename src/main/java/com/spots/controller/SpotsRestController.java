@@ -8,6 +8,7 @@ import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.spots.SpotsService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/spots")
+@SecurityRequirement(name = "Bearer Authentication")
 class SpotsRestController {
 
     @Autowired

@@ -19,6 +19,9 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
+    private static final String[] ALLOWED_PATHS = {"/auth/login", "/auth/register","/swagger-ui/index.html","/swagger-ui/**",
+            "/swagger-ui/**", "/v3/api-docs/**"};
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -27,7 +30,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         authz ->
                                 authz
-                                        .requestMatchers("/auth/login", "/auth/register")
+                                        .requestMatchers(ALLOWED_PATHS)
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
@@ -35,4 +38,6 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
+
 }

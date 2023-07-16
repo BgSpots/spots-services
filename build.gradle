@@ -29,6 +29,7 @@ ext {
 }
 
 dependencies {
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -79,6 +80,7 @@ spotless {
         removeUnusedImports()
     }
 }
+
 
 build.dependsOn spotlessApply, precommit
 tasks.test {

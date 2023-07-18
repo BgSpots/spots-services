@@ -23,7 +23,7 @@ import java.util.Random;
 @RestController
 @RequestMapping("/users")
 @SecurityRequirement(name = "Bearer Authentication")
-class UserRestController {
+class UsersRestController {
     @Autowired
     public UserService userService;
 

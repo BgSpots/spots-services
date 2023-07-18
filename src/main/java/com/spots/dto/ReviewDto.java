@@ -1,6 +1,5 @@
 package com.spots.dto;
 
-import com.spots.domain.User;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -8,7 +7,6 @@ public class ReviewDto {
 
     private String id;
     private String userId;
-
 
     @Min(1)
     @Max(10)

@@ -1,6 +1,6 @@
 package com.spots.controller;
 
-public class ApiSuccess {
+class ApiSuccess {
     public String action;
     public String message;
 

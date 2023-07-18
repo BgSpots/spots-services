@@ -12,15 +12,15 @@ import org.springframework.context.annotation.Configuration;
         name = "Bearer Authentication",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
-        scheme = "bearer"
-)
+        scheme = "bearer")
 public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info()
-                        .title("Spots API")
-                        .version("1.0.0")
-                        .description("Api for mobile app Spots."));
+                .info(
+                        new Info()
+                                .title("Spots API")
+                                .version("1.0.0")
+                                .description("Api for mobile app Spots."));
     }
 }

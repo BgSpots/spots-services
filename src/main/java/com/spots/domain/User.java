@@ -2,6 +2,9 @@ package com.spots.domain;
 
 
 import java.util.Collection;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,7 +21,7 @@ public class User implements UserDetails {
     private String id;
     private Role role;
     private String username;
-
+    @NotBlank(message = "User email can't be blank")
     @Email(message = "Email must be valid!")
     private String email;
 

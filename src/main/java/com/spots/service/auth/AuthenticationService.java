@@ -3,6 +3,7 @@ package com.spots.service.auth;
 import com.spots.common.auth.LoginBody;
 import com.spots.common.auth.LoginResponse;
 import com.spots.common.auth.RegisterBody;
+import com.spots.domain.GenericValidator;
 import com.spots.domain.Role;
 import com.spots.domain.User;
 import com.spots.repository.UserRepository;
@@ -28,15 +29,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     private final RedisTemplate<String, String> redis;
-    private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = factory.getValidator();
 
     public LoginResponse register(RegisterBody body) {
         var user =
@@ -47,7 +45,9 @@ public class AuthenticationService {
                         .password(body.getPassword())
                         .build();
 
-        validateUser(user);
+        GenericValidator<User> spotValidator = new GenericValidator<>();
+        spotValidator.validate(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
@@ -74,16 +74,5 @@ public class AuthenticationService {
         redis.opsForValue().set(request.getRemoteAddr(), jwt);
     }
 
-    private void validateUser(User user) {
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        List<String> violationsMsgs = new ArrayList<>();
-        for (ConstraintViolation<User> violation : violations) {
-            violationsMsgs.add(violation.getMessage());
-            logger.error(violation.getMessage());
-        }
-        if (!violationsMsgs.isEmpty()) {
-            throw new InvalidInputException(violationsMsgs.toString());
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-    }
+
 }

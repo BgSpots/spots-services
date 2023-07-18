@@ -20,8 +20,5 @@ public class Review {
 
     private String comment;
 
-    public void  updateReview(Review newReview) {
-        this.rating = newReview.getRating();
-        this.comment = newReview.getComment();
-    }
+
 }

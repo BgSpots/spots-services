@@ -1,51 +1,60 @@
 package com.spots.service.spots;
 
+import com.spots.domain.GenericValidator;
 import com.spots.domain.Review;
 import com.spots.domain.Spot;
 import com.spots.domain.User;
+import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
 import com.spots.repository.SpotsRepository;
+import com.spots.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SpotsService {
+
     @Autowired
     public SpotsRepository spotsRepository;
 
-    public String createSpot(Spot spot){
-        if(!spotsRepository.existsSpotByName(spot.getName())){
-            spotsRepository.insert(spot);
-            return  "Spot added successfully!";
-        }
+    @Autowired
+    public UserRepository userRepository;
 
-        return "Spot with this name already exists!";
+    public void createSpot(SpotDto spotDto){
+        Spot spot = Spot.builder()
+                .id(randomId())
+                .name(spotDto.getName())
+                .location(spotDto.getLocation())
+                .description(spotDto.getDescription())
+                .reviews(new ArrayList<>())
+                .conqueredBy(new ArrayList<>())
+                .build();
+        GenericValidator<Spot> spotValidator = new GenericValidator<>();
+        spotValidator.validate(spot);
+        if(spotsRepository.existsSpotByName(spot.getName())){
+            throw  new InvalidSpotNameException("Spot with this name already exists!");
+        }
+        spotsRepository.insert(spot);
+
     }
 
-    public String updateSpot(SpotDto spotDto){
-
-        if(spotsRepository.existsSpotById(spotDto.getId())){
-            Spot spot = spotsRepository.findById(spotDto.getId()).get();
-            spot.fromDtoToEntity(spotDto);
-            spotsRepository.save(spot);
-            return  "Spot updated successfully!";
+    public void updateSpot(SpotDto spotDto){
+        if(!spotsRepository.existsSpotById(spotDto.getId())){
+            throw  new InvalidSpotIdException("Spot with this id doesn't exists!");
         }
-
-        return "Spot with this id doesn't exists!";
+        Spot spot = spotsRepository.findById(spotDto.getId()).get();
+        fromDtoToEntity(spotDto,spot);
+        spotsRepository.save(spot);
 
     }
 
-    public String deleteSpot(String spotId){
-
-        if(spotsRepository.existsSpotById(spotId)){
-            spotsRepository.deleteById(spotId);
-            return  "Spot deleted successfully!";
+    public void deleteSpot(String spotId){
+        if(!spotsRepository.existsSpotById(spotId)){
+            throw  new InvalidSpotIdException("Spot with this id doesn't exists!");
         }
-
-        return "Spot with this id doesn't exists!";
+        spotsRepository.deleteById(spotId);
 
     }
 
@@ -53,61 +62,98 @@ public class SpotsService {
         return  spotsRepository.findAll();
     }
 
+    //TODO make it pageable list 5 items every page
     public List<Review> getSpotReviews(String spotId){
-        return  spotsRepository.findById(spotId).get().getReviews();
-    }
 
+        List<Review> reviews = spotsRepository.findById(spotId).get().getReviews();
 
-    public String addSpotReview(String spotId,Review review){
-        if(!spotsRepository.existsSpotById(spotId)){
-            Spot spot = spotsRepository.findById(spotId).get();
-            spot.getReviews().add(review);
-            spotsRepository.save(spot);
-            return  "Review added for spot!";
+        if(reviews.isEmpty()){
+            throw  new InvalidSpotIdException("No reviews posted yet!");
         }
 
-        return "Spot with this id doesn't exists!";
-
+        return  reviews;
     }
-    public String updateSpotReview(String spotId,Review review){
 
+
+    public void addSpotReview(String spotId, ReviewDto reviewDto){
+        Review review=Review.builder().build();
+        User user =userRepository.findById(reviewDto.getUserId()).get();
+
+        review.setId(randomId());
+        review.setComment(reviewDto.getComment());
+        review.setRating(reviewDto.getRating());
+        review.setUser(user);
+
+        GenericValidator<Review> reviewValidator = new GenericValidator<>();
+        reviewValidator.validate(review);
         if(!spotsRepository.existsSpotById(spotId)){
-            Spot spot = spotsRepository.findById(spotId).get();
-            spot.getReviews().stream()
-                    .filter(x->x.getId()==review.getId())
-                    .findFirst()
-                    .get()
-                    .updateReview(review);
-            spotsRepository.save(spot);
-            return  "Review updated for spot!";
+            throw  new InvalidSpotIdException("Spot with this id doesn't exists!");
         }
-
-        return "Spot with this id doesn't exists!";
+        Spot spot = spotsRepository.findById(spotId).get();
+        spot.getReviews().add(review);
+        spotsRepository.save(spot);
 
     }
-
-    public String deleteSpotReview(String spotId,String reviewId){
+    public void updateSpotReview(String spotId,ReviewDto reviewDto){
         if(!spotsRepository.existsSpotById(spotId)){
-            Spot spot = spotsRepository.findById(spotId).get();
-            spot.getReviews().removeIf(x->x.getId().equals(reviewId));
-            spotsRepository.save(spot);
-            return  "Review deleted from spot!";
+            throw  new InvalidSpotIdException("Spot with this id doesn't exists!");
         }
+        Spot spot = spotsRepository.findById(spotId).get();
+        Review existing_review = spot.getReviews().stream()
+                .filter(x->x.getId()==reviewDto.getId())
+                .findFirst()
+                .get();
 
-        return "Spot with this id doesn't exists!";
+        if(existing_review==null){
+            throw  new InvalidReviewIdException("Review with this id doesn't exists!");
+        }
+        existing_review.setRating(reviewDto.getRating());
+        existing_review.setComment(reviewDto.getComment());
 
+        GenericValidator<Review> reviewValidator = new GenericValidator<>();
+        reviewValidator.validate(existing_review);
+
+        spotsRepository.save(spot);
 
     }
 
+    public void deleteSpotReview(String spotId,String reviewId){
+        if(!spotsRepository.existsSpotById(spotId)){
+            throw  new InvalidSpotIdException("Spot with this id doesn't exists!");
+        }
+        Spot spot = spotsRepository.findById(spotId).get();
+        Review existing_review =    spot.getReviews().stream()
+                .filter(x->x.getId()==reviewId)
+                .findFirst()
+                .get();
 
-    public String conquerSpot(String spotId, User user){
+        if(existing_review==null){
+            throw  new InvalidReviewIdException("Review with this id doesn't exists!");
+        }
+        spot.getReviews().removeIf(x->x.getId().equals(reviewId));
+        spotsRepository.save(spot);
+
+    }
+
+    public void conquerSpot(String spotId, User user){
+        GenericValidator<User> userValidator = new GenericValidator<>();
+        userValidator.validate(user);
         Spot spot = spotsRepository.findById(spotId).get();
         if(spot.getConqueredBy().contains(user)){
-            return  "Already conquered!";
+            throw new SpotConqueredException("Spot is conquered already");
         }
         spot.getConqueredBy().add(user);
         spotsRepository.save(spot);
-        return  "Conquering confirmed!";
     }
-
+    private static String randomId() {
+        Long max=1000000L;
+        Long min =9999999L;
+        Random random = new Random();
+        return min + random.nextLong() % (max - min + 1)+"";
+    }
+    public void fromDtoToEntity(SpotDto spotDto,Spot spot) {
+        spot.setName(spotDto.getName());
+        spot.setLocation(spotDto.getLocation());
+        spot.setDescription(spotDto.getDescription());
+    }
 }

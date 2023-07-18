@@ -31,11 +31,6 @@ public class AuthenticationRestController {
             ApiError error =
                     new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
-        } catch (Exception e) {
-            ApiError error =
-                    new ApiError(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), request.getRequestURI());
-            return ResponseEntity.internalServerError().body(error);
         }
     }
 
@@ -48,25 +43,13 @@ public class AuthenticationRestController {
             ApiError error =
                     new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
-        } catch (Exception e) {
-            ApiError error =
-                    new ApiError(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), request.getRequestURI());
-            return ResponseEntity.internalServerError().body(error);
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        try {
-            authService.logout(request);
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-            ApiError error =
-                    new ApiError(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), request.getRequestURI());
-            return ResponseEntity.internalServerError().body(error);
-        }
+        authService.logout(request);
+        return ResponseEntity.ok(null);
     }
 
     @PostMapping("/login/facebook")

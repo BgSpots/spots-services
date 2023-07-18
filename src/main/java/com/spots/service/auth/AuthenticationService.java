@@ -43,7 +43,7 @@ public class AuthenticationService {
             throw new EmailTakenException("User with that email already exists");
         }
         var jwtToken = jwtService.generateToken(user);
-        userRepository.save(user);
+        userRepository.insert(user);
         return LoginResponse.builder().accessToken(jwtToken).build();
     }
 

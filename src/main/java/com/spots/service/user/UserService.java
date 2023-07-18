@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
+    private final GenericValidator<User> userValidator;
     private final PasswordEncoder passwordEncoder;
 
     public void createUser(User user) {
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
-        GenericValidator<User> spotValidator = new GenericValidator<>();
-        spotValidator.validate(user);
+        userValidator.validate(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.insert(user);
     }
@@ -39,7 +38,7 @@ public class UserService {
         user.setEmail(userDto.getEmail());
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        userValidator.validate(user);
         userRepository.save(user);
     }
 

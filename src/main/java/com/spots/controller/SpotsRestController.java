@@ -7,19 +7,21 @@ import com.spots.dto.SpotDto;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.spots.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/spots")
-// @SecurityRequirement(name = "Bearer Authentication")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 class SpotsRestController {
 
-    @Autowired public SpotsService spotsService;
+    private final SpotsService spotsService;
 
     @GetMapping
     @Operation(summary = "Get all existing spots", description = "Returns a list of spots entity.")

@@ -7,19 +7,21 @@ import com.spots.service.auth.InvalidInputException;
 import com.spots.service.user.InvalidUserException;
 import com.spots.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Random;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
-// @SecurityRequirement(name = "Bearer Authentication")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 class UserRestController {
-    @Autowired public UserService userService;
+    private final UserService userService;
 
     @GetMapping
     @Operation(summary = "Show all users", description = "Returns a list of user entity.")
@@ -78,8 +80,8 @@ class UserRestController {
     }
 
     private static String randomId() {
-        Long max = 1000000L;
-        Long min = 9999999L;
+        long max = 1000000L;
+        long min = 9999999L;
         Random random = new Random();
         return min + random.nextLong() % (max - min + 1) + "";
     }

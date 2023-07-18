@@ -13,16 +13,15 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class SpotsService {
 
     public static final String SPOT_WITH_THIS_ID_DOESN_T_EXISTS = "Spot with this id doesn't exists!";
     public static final String USER_WITH_THIS_ID_DOESN_T_EXISTS = "User with this id doesn't exists!";
     private final SpotsRepository spotsRepository;
-
+    private final GenericValidator<Spot> spotValidator;
     private final UserRepository userRepository;
-
     private static final Random random = new Random();
 
     public void createSpot(SpotDto spotDto) {
@@ -35,7 +34,6 @@ public class SpotsService {
                         .reviews(new ArrayList<>())
                         .conqueredBy(new ArrayList<>())
                         .build();
-        GenericValidator<Spot> spotValidator = new GenericValidator<>();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
             throw new InvalidSpotNameException("Spot with this name already exists!");
@@ -65,7 +63,6 @@ public class SpotsService {
 
     // TODO make it pageable list 5 items every page
     public List<Review> getSpotReviews(String spotId) {
-
         Spot spot =
                 spotsRepository
                         .findById(spotId)
@@ -160,5 +157,6 @@ public class SpotsService {
         spot.setName(spotDto.getName());
         spot.setLocation(spotDto.getLocation());
         spot.setDescription(spotDto.getDescription());
+        spotValidator.validate(spot);
     }
 }

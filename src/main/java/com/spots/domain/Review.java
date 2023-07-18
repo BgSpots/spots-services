@@ -13,12 +13,9 @@ public class Review {
     private String id;
     private User user;
 
-
     @Min(1)
     @Max(10)
     private float rating;
 
     private String comment;
-
-
 }

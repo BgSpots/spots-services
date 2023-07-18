@@ -1,14 +1,11 @@
 package com.spots.dto;
 
-import com.spots.domain.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 public class UserDto {
     private String id;
     private String username;
-
-
 
     @Email(message = "Email must be valid!")
     private String email;
@@ -23,6 +20,7 @@ public class UserDto {
     public void setId(String id) {
         this.id = id;
     }
+
     public String getUsername() {
         return username;
     }

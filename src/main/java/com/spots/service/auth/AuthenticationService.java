@@ -1,23 +1,14 @@
 package com.spots.service.auth;
 
+import com.spots.common.GenericValidator;
 import com.spots.common.auth.LoginBody;
 import com.spots.common.auth.LoginResponse;
 import com.spots.common.auth.RegisterBody;
-import com.spots.domain.GenericValidator;
 import com.spots.domain.Role;
 import com.spots.domain.User;
 import com.spots.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,6 +64,4 @@ public class AuthenticationService {
         var jwt = authHeader.substring(7);
         redis.opsForValue().set(request.getRemoteAddr(), jwt);
     }
-
-
 }

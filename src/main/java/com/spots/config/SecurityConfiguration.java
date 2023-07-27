@@ -20,8 +20,8 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
 
     private static final String[] ALLOWED_PATHS = {
-        "/auth/login",
-        "/auth/register",
+        "/auth/login/**",
+        "/auth/register/**",
         "/swagger-ui/index.html",
         "/swagger-ui/**",
         "/swagger-ui/**",

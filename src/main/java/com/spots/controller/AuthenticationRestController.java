@@ -52,14 +52,21 @@ public class AuthenticationRestController {
         return ResponseEntity.ok(null);
     }
 
+    @PostMapping("/login/google")
+    public ResponseEntity<LoginResponse> loginWithGoogle(@RequestBody String accessToken) {
+        // TODO
+        authService.loginWithGoogle(accessToken);
+        return ResponseEntity.ok(null);
+    }
+
     @PostMapping("/login/facebook")
-    public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody LoginBody body) {
+    public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody String accessToken) {
         // TODO
         return ResponseEntity.ok(null);
     }
 
     @PostMapping("/login/instagram")
-    public ResponseEntity<LoginResponse> loginWithInstagram(@RequestBody LoginBody body) {
+    public ResponseEntity<LoginResponse> loginWithInstagram(@RequestBody String accessToken) {
         // TODO
         return ResponseEntity.ok(null);
     }

@@ -17,6 +17,7 @@ public class User implements UserDetails {
     private String id;
     private Role role;
     private String username;
+    private String picture;
 
     @NotBlank(message = "User email can't be blank")
     @Email(message = "Email must be valid!")

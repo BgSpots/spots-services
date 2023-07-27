@@ -5,9 +5,9 @@ services:
     environment:
       - 'MONGO_INITDB_DATABASE=spots'
     ports:
-      - '27017'
+      - '27017:27017'
   redis:
     restart: always
     image: 'redis:latest'
     ports:
-      - '6379'
+      - '6379:6379'

@@ -74,9 +74,10 @@ class SpotsRestController {
 
     @GetMapping("/{spotId}/reviews")
     @Operation(summary = "Get all reviews from spot", description = "Returns a list of review")
-    public ResponseEntity<?> getSpotReviews(@PathVariable String spotId, HttpServletRequest request) {
+    public ResponseEntity<?> getSpotReviews(
+            @PathVariable String spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(spotsService.getSpotReviews(spotId));
+            return ResponseEntity.ok(spotsService.getSpotReviews(spotId, pageNum));
 
         } catch (NoReviewsException | InvalidSpotIdException | InvalidInputException e) {
             ApiError error =

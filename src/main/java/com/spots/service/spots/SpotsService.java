@@ -6,11 +6,16 @@ import com.spots.domain.Spot;
 import com.spots.domain.User;
 import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
+import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.user.InvalidUserException;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +28,10 @@ public class SpotsService {
     private final GenericValidator<Spot> spotValidator;
     private final UserRepository userRepository;
     private static final Random random = new Random();
+
+    private final MongoTemplate mongoTemplate;
+
+    private final ReviewRepository reviewRepository;
 
     public void createSpot(SpotDto spotDto) {
         Spot spot =
@@ -58,26 +67,32 @@ public class SpotsService {
     }
 
     public List<Spot> getSpots() {
-        return spotsRepository.findAll();
+        Query query = new Query();
+        query.fields().include("id").include("description").include("overallRating");
+        List<Spot> spots = mongoTemplate.find(query, Spot.class);
+
+        return spots;
     }
 
     // TODO make it pageable list 5 items every page
-    public List<Review> getSpotReviews(String spotId) {
+    public List<Review> getSpotReviews(String spotId, Integer pageNum) {
+        Pageable pageable = PageRequest.of(pageNum, 5);
+
         Spot spot =
                 spotsRepository
                         .findById(spotId)
                         .orElseThrow(() -> new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS));
-        List<Review> reviews = spot.getReviews();
+        List<Review> reviews = reviewRepository.findAllBySpotId(spotId, pageable).getContent();
 
         if (reviews.isEmpty()) {
             throw new InvalidSpotIdException("No reviews posted yet!");
         }
-
         return reviews;
     }
 
     public void addSpotReview(String spotId, ReviewDto reviewDto) {
         Review review = Review.builder().build();
+
         User user =
                 userRepository
                         .findById(reviewDto.getUserId())

@@ -2,9 +2,11 @@ package com.spots.domain;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -12,14 +14,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Spot {
     private String id;
-    private String name;
+    @NotBlank private String name;
     private Location location;
-    private String description;
+    @NotBlank private String description;
 
     @Min(1)
     @Max(10)
     private float overallRating;
 
-    private List<Review> reviews;
+    @DBRef private List<Review> reviews;
     private List<User> conqueredBy;
 }

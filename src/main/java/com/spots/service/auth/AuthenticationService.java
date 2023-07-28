@@ -1,5 +1,6 @@
 package com.spots.service.auth;
 
+import com.mongodb.DuplicateKeyException;
 import com.spots.common.GenericValidator;
 import com.spots.common.auth.LoginBody;
 import com.spots.common.auth.LoginResponse;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +31,7 @@ public class AuthenticationService {
 
     public LoginResponse register(RegisterBody body) {
         var user =
-                User.builder()
-                        .username(body.getEmail())
-                        .email(body.getEmail())
-                        .role(Role.USER)
-                        .password(body.getPassword())
-                        .build();
+                User.builder().email(body.getEmail()).role(Role.USER).password(body.getPassword()).build();
 
         GenericValidator<User> spotValidator = new GenericValidator<>();
         spotValidator.validate(user);
@@ -57,6 +54,33 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user.get());
         // return jwt token to client
         return LoginResponse.builder().accessToken(jwtToken).build();
+    }
+
+    public LoginResponse loginWithGoogle(String accessToken) {
+        WebClient webClient = WebClient.create();
+        try {
+            final var googleUserDTO =
+                    webClient
+                            .get()
+                            .uri("https://www.googleapis.com/userinfo/v2/me")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .retrieve()
+                            .bodyToMono(GoogleUserDTO.class)
+                            .block();
+            final var user =
+                    User.builder()
+                            .username(googleUserDTO.getName())
+                            .id(googleUserDTO.getId())
+                            .email(googleUserDTO.getEmail())
+                            .picture(googleUserDTO.getPicture())
+                            .build();
+            userRepository.insert(user);
+        } catch (DuplicateKeyException e) {
+            throw new UserAlreadyExistsException("User already exists!");
+        } catch (Exception e) {
+            throw new InvalidAccessTokenException("Invalid access token: " + accessToken);
+        }
+        return null;
     }
 
     public void logout(HttpServletRequest request) {

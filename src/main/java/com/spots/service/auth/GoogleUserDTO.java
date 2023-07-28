@@ -26,6 +26,4 @@ public class GoogleUserDTO {
         this.name = name;
         this.picture = picture;
     }
-
-    // getters and setters
 }

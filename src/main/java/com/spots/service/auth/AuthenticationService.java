@@ -1,5 +1,6 @@
 package com.spots.service.auth;
 
+import com.mongodb.DuplicateKeyException;
 import com.spots.common.GenericValidator;
 import com.spots.common.auth.LoginBody;
 import com.spots.common.auth.LoginResponse;
@@ -73,8 +74,9 @@ public class AuthenticationService {
                             .email(googleUserDTO.getEmail())
                             .picture(googleUserDTO.getPicture())
                             .build();
-            System.out.println(user);
             userRepository.insert(user);
+        } catch (DuplicateKeyException e) {
+            throw new UserAlreadyExistsException("User already exists!");
         } catch (Exception e) {
             throw new InvalidAccessTokenException("Invalid access token: " + accessToken);
         }

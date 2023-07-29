@@ -56,7 +56,7 @@ public class AuthenticationService {
         return LoginResponse.builder().accessToken(jwtToken).build();
     }
 
-    public LoginResponse loginWithGoogle(String accessToken) {
+    public GoogleUserDTO loginWithGoogle(String accessToken) {
         WebClient webClient = WebClient.create();
         try {
             final var googleUserDTO =
@@ -74,13 +74,14 @@ public class AuthenticationService {
                             .email(googleUserDTO.getEmail())
                             .picture(googleUserDTO.getPicture())
                             .build();
-            userRepository.insert(user);
+            userRepository.save(user);
+            googleUserDTO.setJwt(jwtService.generateToken(user));
+            return googleUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");
         } catch (Exception e) {
             throw new InvalidAccessTokenException("Invalid access token: " + accessToken);
         }
-        return null;
     }
 
     public void logout(HttpServletRequest request) {

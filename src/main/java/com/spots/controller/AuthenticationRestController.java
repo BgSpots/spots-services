@@ -58,8 +58,7 @@ public class AuthenticationRestController {
     public ResponseEntity<?> loginWithGoogle(
             @RequestBody String accessToken, HttpServletRequest request) {
         try {
-            authService.loginWithGoogle(accessToken);
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(authService.loginWithGoogle(accessToken));
         } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
             ApiError error =
                     new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());

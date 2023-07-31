@@ -3,14 +3,17 @@ package com.spots.service.auth;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class GoogleUserDTO {
     private String id;
     private String email;
     private boolean verifiedEmail;
     private String name;
     private String picture;
+    private String jwt;
 
     @JsonCreator
     public GoogleUserDTO(

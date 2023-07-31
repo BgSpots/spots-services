@@ -67,9 +67,15 @@ public class AuthenticationRestController {
     }
 
     @PostMapping("/login/facebook")
-    public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody String accessToken) {
-        // TODO
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> loginWithFacebook(
+            @RequestBody String accessToken, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(authService.loginWithFacebook(accessToken));
+        } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
+            ApiError error =
+                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @PostMapping("/login/instagram")

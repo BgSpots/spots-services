@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Review {
     private String id;
-    private String spotId;
     private User user;
 
     @Min(1)

@@ -6,16 +6,13 @@ import com.spots.domain.Spot;
 import com.spots.domain.User;
 import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
-import com.spots.repository.ReviewRepository;
+import com.spots.dto.UserDto;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.user.InvalidUserException;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,8 +28,6 @@ public class SpotsService {
 
     private final MongoTemplate mongoTemplate;
 
-    private final ReviewRepository reviewRepository;
-
     public void createSpot(SpotDto spotDto) {
         Spot spot =
                 Spot.builder()
@@ -40,6 +35,7 @@ public class SpotsService {
                         .name(spotDto.getName())
                         .location(spotDto.getLocation())
                         .description(spotDto.getDescription())
+                        .overallRating(1)
                         .reviews(new ArrayList<>())
                         .conqueredBy(new ArrayList<>())
                         .build();
@@ -67,41 +63,32 @@ public class SpotsService {
     }
 
     public List<Spot> getSpots() {
-        Query query = new Query();
-        query.fields().include("id").include("description").include("overallRating");
-        List<Spot> spots = mongoTemplate.find(query, Spot.class);
+        //        Query query = new Query();
+        //        query.fields().exclude("reviews").exclude("conqueredBy");
+        //        return mongoTemplate.find(query, Spot.class);
 
-        return spots;
+        return spotsRepository.findAll();
     }
 
     // TODO make it pageable list 5 items every page
-    public List<Review> getSpotReviews(String spotId, Integer pageNum) {
-        Pageable pageable = PageRequest.of(pageNum, 5);
+    public List<Review> getSpotReviews(String spotId, int page) {
+        Spot spot = spotsRepository.findById(spotId).get();
 
-        Spot spot =
-                spotsRepository
-                        .findById(spotId)
-                        .orElseThrow(() -> new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS));
-        List<Review> reviews = reviewRepository.findAllBySpotId(spotId, pageable).getContent();
-
-        if (reviews.isEmpty()) {
-            throw new InvalidSpotIdException("No reviews posted yet!");
-        }
-        return reviews;
+        return spot.getReviews();
     }
 
     public void addSpotReview(String spotId, ReviewDto reviewDto) {
-        Review review = Review.builder().build();
-
         User user =
                 userRepository
                         .findById(reviewDto.getUserId())
                         .orElseThrow(() -> new InvalidUserException(USER_WITH_THIS_ID_DOESN_T_EXISTS));
-
-        review.setId(randomId());
-        review.setComment(reviewDto.getComment());
-        review.setRating(reviewDto.getRating());
-        review.setUser(user);
+        Review review =
+                Review.builder()
+                        .id(randomId())
+                        .comment(reviewDto.getComment())
+                        .rating(reviewDto.getRating())
+                        .user(user)
+                        .build();
 
         GenericValidator<Review> reviewValidator = new GenericValidator<>();
         reviewValidator.validate(review);
@@ -148,8 +135,11 @@ public class SpotsService {
         spotsRepository.save(spot);
     }
 
-    public void conquerSpot(String spotId, User user) {
+    public void conquerSpot(String spotId, UserDto userDto) {
         GenericValidator<User> userValidator = new GenericValidator<>();
+        User user = User.builder().build();
+        fromDtoToEntity(userDto, user);
+
         userValidator.validate(user);
         Spot spot =
                 spotsRepository
@@ -173,5 +163,11 @@ public class SpotsService {
         spot.setLocation(spotDto.getLocation());
         spot.setDescription(spotDto.getDescription());
         spotValidator.validate(spot);
+    }
+
+    public void fromDtoToEntity(UserDto userDto, User user) {
+        user.setUsername(userDto.getUsername());
+        user.setPassword(userDto.getPassword());
+        user.setEmail(userDto.getEmail());
     }
 }

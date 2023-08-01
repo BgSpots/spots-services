@@ -84,6 +84,34 @@ public class AuthenticationService {
         }
     }
 
+    public FacebookUserDTO loginWithFacebook(String accessToken) {
+        WebClient webClient = WebClient.create();
+        try {
+            final var facebookUserDTO =
+                    webClient
+                            .get()
+                            .uri("https://graph.facebook.com/v13.0/me?fields=id,name,picture,email")
+                            .header("Authorization", "Bearer " + accessToken)
+                            .retrieve()
+                            .bodyToMono(FacebookUserDTO.class)
+                            .block();
+            final var user =
+                    User.builder()
+                            .username(facebookUserDTO.getName())
+                            .id(facebookUserDTO.getId())
+                            .email(facebookUserDTO.getEmail())
+                            .picture(facebookUserDTO.getPicture().getUrl())
+                            .build();
+            userRepository.save(user);
+            facebookUserDTO.setJwt(jwtService.generateToken(user));
+            return facebookUserDTO;
+        } catch (DuplicateKeyException e) {
+            throw new UserAlreadyExistsException("User already exists!");
+        } catch (Exception e) {
+            throw new InvalidAccessTokenException("Invalid access token: " + accessToken);
+        }
+    }
+
     public void logout(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         var jwt = authHeader.substring(7);

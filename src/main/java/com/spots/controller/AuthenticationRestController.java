@@ -24,6 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationRestController {
     private final AuthenticationService authService;
 
+    /**
+      * Generates jwt token for the user using email and password, saves the use to the database
+      *
+      * @param body
+      * @param request
+      * @return
+      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterBody body, HttpServletRequest request) {
         try {
@@ -36,6 +43,13 @@ public class AuthenticationRestController {
         }
     }
 
+    /**
+      * Generates new jwt token for already existing user
+      *
+      * @param body
+      * @param request
+      * @return
+      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginBody body, HttpServletRequest request) {
         try {
@@ -48,6 +62,13 @@ public class AuthenticationRestController {
         }
     }
 
+    /**
+      * Blacklists the user's jwt token and make it so the user should authenticate with newly created
+      * jwt token
+      *
+      * @param request
+      * @return
+      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         authService.logout(request);

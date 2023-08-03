@@ -6,6 +6,7 @@ import com.spots.dto.UserDto;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import java.util.List;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,14 @@ public class UserService {
     private final GenericValidator<User> userValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public void createUser(User user) {
+    public void createUser(UserDto userDto) {
+        User user =
+                User.builder()
+                        .id(randomId())
+                        .username(userDto.getUsername())
+                        .email(userDto.getEmail())
+                        .password(userDto.getPassword())
+                        .build();
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
@@ -51,5 +59,12 @@ public class UserService {
 
     public List<User> getUsers() {
         return userRepository.findAll();
+    }
+
+    private static String randomId() {
+        long max = 1000000L;
+        long min = 9999999L;
+        Random random = new Random();
+        return min + random.nextLong() % (max - min + 1) + "";
     }
 }

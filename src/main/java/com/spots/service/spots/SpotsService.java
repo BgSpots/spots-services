@@ -6,6 +6,7 @@ import com.spots.domain.Spot;
 import com.spots.domain.User;
 import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
+import com.spots.dto.UserDto;
 import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
@@ -26,9 +27,9 @@ public class SpotsService {
     public static final String USER_WITH_THIS_ID_DOESN_T_EXISTS = "User with this id doesn't exists!";
     private final SpotsRepository spotsRepository;
     private final GenericValidator<Spot> spotValidator;
+    private final GenericValidator<User> userValidator;
     private final UserRepository userRepository;
     private static final Random random = new Random();
-
     private final MongoTemplate mongoTemplate;
 
     private final ReviewRepository reviewRepository;
@@ -148,8 +149,14 @@ public class SpotsService {
         spotsRepository.save(spot);
     }
 
-    public void conquerSpot(String spotId, User user) {
-        GenericValidator<User> userValidator = new GenericValidator<>();
+    public void conquerSpot(String spotId, UserDto userDto) {
+        User user =
+                User.builder()
+                        .id(randomId())
+                        .username(userDto.getUsername())
+                        .email(userDto.getEmail())
+                        .password(userDto.getPassword())
+                        .build();
         userValidator.validate(user);
         Spot spot =
                 spotsRepository

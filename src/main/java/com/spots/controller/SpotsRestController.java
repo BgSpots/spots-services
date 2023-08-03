@@ -1,9 +1,9 @@
 package com.spots.controller;
 
 import com.spots.domain.Spot;
-import com.spots.domain.User;
 import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
+import com.spots.dto.UserDto;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.spots.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -142,10 +142,10 @@ class SpotsRestController {
             summary = " Adds user who have visited this spot",
             description = "Adds user entity to the spots conquered list.")
     public ResponseEntity<?> conquerSpot(
-            @PathVariable String spotId, @RequestBody User user, HttpServletRequest request) {
+            @PathVariable String spotId, @RequestBody UserDto userDto, HttpServletRequest request) {
         try {
-            spotsService.conquerSpot(spotId, user);
-            ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Already conquered!");
+            spotsService.conquerSpot(spotId, userDto);
+            ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Spot conquered!");
             return ResponseEntity.ok(successResponse);
         } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =

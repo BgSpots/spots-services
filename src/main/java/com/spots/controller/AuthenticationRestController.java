@@ -5,8 +5,10 @@ import com.spots.common.auth.LoginResponse;
 import com.spots.common.auth.RegisterBody;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.EmailTakenException;
+import com.spots.service.auth.InvalidAccessTokenException;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.auth.InvalidLoginCredenials;
+import com.spots.service.auth.UserAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -52,14 +54,32 @@ public class AuthenticationRestController {
         return ResponseEntity.ok(null);
     }
 
+    @PostMapping("/login/google")
+    public ResponseEntity<?> loginWithGoogle(
+            @RequestBody String accessToken, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(authService.loginWithGoogle(accessToken));
+        } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
+            ApiError error =
+                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
     @PostMapping("/login/facebook")
-    public ResponseEntity<LoginResponse> loginWithFacebook(@RequestBody LoginBody body) {
-        // TODO
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> loginWithFacebook(
+            @RequestBody String accessToken, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(authService.loginWithFacebook(accessToken));
+        } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
+            ApiError error =
+                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @PostMapping("/login/instagram")
-    public ResponseEntity<LoginResponse> loginWithInstagram(@RequestBody LoginBody body) {
+    public ResponseEntity<LoginResponse> loginWithInstagram(@RequestBody String accessToken) {
         // TODO
         return ResponseEntity.ok(null);
     }

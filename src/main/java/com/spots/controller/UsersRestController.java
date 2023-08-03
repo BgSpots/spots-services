@@ -33,7 +33,6 @@ class UserRestController {
     @Operation(summary = "Adds user", description = "Adds a new user entity.")
     public ResponseEntity<?> addUser(@RequestBody UserDto userDto, HttpServletRequest request) {
         try {
-
             userService.createUser(userDto);
             ApiSuccess successResponse = new ApiSuccess("addUser", "User added successfully!");
             return ResponseEntity.ok(successResponse);

@@ -26,7 +26,6 @@ public class UserService {
                         .email(userDto.getEmail())
                         .password(userDto.getPassword())
                         .build();
-
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }

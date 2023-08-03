@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -21,6 +22,6 @@ public class Spot {
     @Max(10)
     private float overallRating;
 
-    private List<Review> reviews;
+    @DBRef private List<Review> reviews;
     private List<User> conqueredBy;
 }

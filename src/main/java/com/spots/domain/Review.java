@@ -12,10 +12,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Review {
     private String id;
     private String spotId;
-    private User user;
+    private UserInfo userInfo;
 
-    @Min(1)
-    @Max(10)
+    @Min(value = 1, message = "Rating must be between 1 and 10.")
+    @Max(value = 10, message = "Rating must be between 1 and 10.")
     private float rating;
 
     private String comment;

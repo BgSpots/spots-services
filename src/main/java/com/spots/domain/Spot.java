@@ -18,10 +18,7 @@ public class Spot {
     private Location location;
     @NotBlank private String description;
 
-    @Min(1)
-    @Max(10)
+    @Min(value = 1, message = "Overall rating must be between 1 and 10.")
+    @Max(value = 10, message = "Overall rating must be between 1 and 10.")
     private float overallRating;
-
-    @DBRef private List<Review> reviews;
-    private List<User> conqueredBy;
 }

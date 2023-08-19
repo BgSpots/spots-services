@@ -281,17 +281,17 @@ public class SpotsRestControllerTest {
 
         mockMvc
                 .perform(
-                        MockMvcRequestBuilders.put("/spots/123/reviews")
+                        MockMvcRequestBuilders.put("/spots/reviews")
                                 .content(new Gson().toJson(review))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("updateReview"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review updated for spot!"));
-        ;
+
 
         ArgumentCaptor<ReviewDto> reviewCaptor = ArgumentCaptor.forClass(ReviewDto.class);
-        verify(spotsService, times(1)).updateSpotReview(anyString(), reviewCaptor.capture());
+        verify(spotsService, times(1)).updateSpotReview(reviewCaptor.capture());
 
         ReviewDto reviewDto = reviewCaptor.getValue();
 
@@ -310,7 +310,7 @@ public class SpotsRestControllerTest {
 
         mockMvc
                 .perform(
-                        MockMvcRequestBuilders.delete("/spots/123/reviews?reviewId=1234")
+                        MockMvcRequestBuilders.delete("/spots/reviews?reviewId=1234")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -318,7 +318,7 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review deleted from spot!"));
         ;
 
-        verify(spotsService, times(1)).deleteSpotReview("123", "1234");
+        verify(spotsService, times(1)).deleteSpotReview("1234");
     }
 
     @Test

@@ -289,7 +289,6 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("updateReview"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review updated for spot!"));
 
-
         ArgumentCaptor<ReviewDto> reviewCaptor = ArgumentCaptor.forClass(ReviewDto.class);
         verify(spotsService, times(1)).updateSpotReview(reviewCaptor.capture());
 

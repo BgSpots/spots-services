@@ -30,6 +30,4 @@ public class UserInfo {
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
     }
-
-
 }

@@ -14,7 +14,6 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,7 +27,6 @@ public class SpotsService {
     private final UserRepository userRepository;
     private final SpotConquerorRepository spotConquerorRepository;
     private static final Random random = new Random();
-
 
     private final ReviewRepository reviewRepository;
 
@@ -68,7 +66,6 @@ public class SpotsService {
         return spotsRepository.findAll();
     }
 
-    // TODO make it pageable list 5 items every page
     public List<Review> getSpotReviews(String spotId, Integer pageNum) {
         Pageable pageable = PageRequest.of(pageNum, 5);
         List<Review> reviews = reviewRepository.findAllBySpotId(spotId, pageable).getContent();
@@ -109,8 +106,10 @@ public class SpotsService {
         spotsRepository.save(spot);
     }
 
-    public void updateSpotReview( ReviewDto reviewDto) {
-        Review existingReview =reviewRepository.findById(reviewDto.getId())
+    public void updateSpotReview(ReviewDto reviewDto) {
+        Review existingReview =
+                reviewRepository
+                        .findById(reviewDto.getId())
                         .orElseThrow(() -> new InvalidReviewIdException("Review with this id doesn't exists!"));
         existingReview.setRating(reviewDto.getRating());
         existingReview.setComment(reviewDto.getComment());
@@ -121,23 +120,22 @@ public class SpotsService {
         reviewRepository.save(existingReview);
     }
 
-    public void deleteSpotReview( String reviewId) {
+    public void deleteSpotReview(String reviewId) {
         if (!reviewRepository.existsById(reviewId)) {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
         }
         reviewRepository.deleteById(reviewId);
     }
 
-    public List<SpotConqueror> getConquerorsOfSpot(String spotId,Integer pageNum){
+    public List<SpotConqueror> getConquerorsOfSpot(String spotId, Integer pageNum) {
         Pageable pageable = PageRequest.of(pageNum, 5);
-        List<SpotConqueror> conquerors =spotConquerorRepository.findAllBySpotId(spotId,pageable).getContent();
+        List<SpotConqueror> conquerors =
+                spotConquerorRepository.findAllBySpotId(spotId, pageable).getContent();
         if (conquerors.isEmpty()) {
             throw new InvalidSpotIdException("No one has conquered this spot yet!");
         }
-        return  conquerors;
-
+        return conquerors;
     }
-
 
     public void conquerSpot(String spotId, UserDto userDto) {
         if (userRepository.findById(userDto.getId()).isEmpty()) {
@@ -148,11 +146,12 @@ public class SpotsService {
             throw new SpotConqueredException("Spot is conquered already");
         }
 
-        SpotConqueror spotConqueror = SpotConqueror.builder()
-                .username(userDto.getUsername())
-                .spotId(spotId)
-                .profilePicture(userDto.getPicture())
-                .build();
+        SpotConqueror spotConqueror =
+                SpotConqueror.builder()
+                        .username(userDto.getUsername())
+                        .spotId(spotId)
+                        .profilePicture(userDto.getPicture())
+                        .build();
 
         spotConquerorRepository.save(spotConqueror);
     }

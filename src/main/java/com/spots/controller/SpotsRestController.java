@@ -103,14 +103,14 @@ class SpotsRestController {
         }
     }
 
-    @PutMapping("/{spotId}/reviews")
+    @PutMapping("/reviews")
     @Operation(
             summary = "Updates existing review from spot",
             description = "Updates review from specific spot using spots id.")
     public ResponseEntity<?> updateSpotReview(
-            @PathVariable String spotId, @RequestBody ReviewDto review, HttpServletRequest request) {
+            @RequestBody ReviewDto review, HttpServletRequest request) {
         try {
-            spotsService.updateSpotReview(spotId, review);
+            spotsService.updateSpotReview(review);
             ApiSuccess successResponse = new ApiSuccess("updateReview", "Review updated for spot!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidReviewIdException | InvalidSpotIdException | InvalidInputException e) {
@@ -120,17 +120,32 @@ class SpotsRestController {
         }
     }
 
-    @DeleteMapping("/{spotId}/reviews")
+    @DeleteMapping("/reviews")
     @Operation(
             summary = "Deletes review from spot",
             description = "Deletes review from specific spot using spots id and the review id.")
     public ResponseEntity<?> deleteSpotReview(
-            @PathVariable String spotId, @RequestParam String reviewId, HttpServletRequest request) {
+            @RequestParam String reviewId, HttpServletRequest request) {
         try {
-            spotsService.deleteSpotReview(spotId, reviewId);
+            spotsService.deleteSpotReview(reviewId);
             ApiSuccess successResponse = new ApiSuccess("deleteReview", "Review deleted from spot!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidReviewIdException | InvalidSpotIdException | InvalidInputException e) {
+            ApiError error =
+                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/{spotId}/conquer")
+    @Operation(
+            summary = " Gets users that have conquered a spot",
+            description = "Gets a list of spot conquerors by specific spotId in paged manner.")
+    public ResponseEntity<?> getConquerors(
+            @PathVariable String spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(spotsService.getConquerorsOfSpot(spotId, pageNum));
+        } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =
                     new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
             return ResponseEntity.badRequest().body(error);

@@ -13,6 +13,8 @@ public class UserDto {
     @Size(min = 5, max = 15, message = "Password should be between 5 and 15 characters!")
     private String password;
 
+    private String picture;
+
     public String getId() {
         return id;
     }
@@ -43,5 +45,13 @@ public class UserDto {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

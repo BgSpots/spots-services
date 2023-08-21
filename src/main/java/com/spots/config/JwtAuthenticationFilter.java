@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
+
         if (!jwtService.isTokenValid(jwt, request.getRemoteAddr())) {
             throw new InvalidJwtTokenException("Invalid jwt token");
         }

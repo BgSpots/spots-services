@@ -31,7 +31,12 @@ public class AuthenticationService {
 
     public LoginResponse register(RegisterBody body) {
         var user =
-                User.builder().email(body.getEmail()).role(Role.USER).password(body.getPassword()).build();
+                User.builder()
+                        .username(body.getEmail())
+                        .email(body.getEmail())
+                        .role(Role.USER)
+                        .password(body.getPassword())
+                        .build();
 
         GenericValidator<User> spotValidator = new GenericValidator<>();
         spotValidator.validate(user);
@@ -51,7 +56,9 @@ public class AuthenticationService {
         var user = userRepository.findUserByEmail(body.getEmail());
         if (user.isEmpty() || !passwordEncoder.matches(body.getPassword(), user.get().getPassword()))
             throw new InvalidLoginCredenials("User with that email and password does not exist!");
-        var jwtToken = jwtService.generateToken(user.get());
+        var userDto = user.get();
+        userDto.setUsername(body.getEmail());
+        var jwtToken = jwtService.generateToken(userDto);
         // return jwt token to client
         return LoginResponse.builder().accessToken(jwtToken).build();
     }

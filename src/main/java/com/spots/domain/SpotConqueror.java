@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class SpotConqueror {
     private String id;
-    private String spotId;
+    private Long spotId;
     private String username;
     private String profilePicture;
 }

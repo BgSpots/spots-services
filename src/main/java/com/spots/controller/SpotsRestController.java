@@ -30,6 +30,13 @@ class SpotsRestController {
         return ResponseEntity.ok(spots);
     }
 
+    @GetMapping("/random")
+    @Operation(summary = "Get random spot", description = "Returns a random spot from db.")
+    public ResponseEntity<?> getRandomSpot(HttpServletRequest request) {
+        Spot spot = spotsService.getRandomSpot();
+        return ResponseEntity.ok(spot);
+    }
+
     @PostMapping
     @Operation(summary = "Adds a new spot", description = "Adds new spot entity.")
     public ResponseEntity<?> addSpot(@RequestBody SpotDto spotDto, HttpServletRequest request) {
@@ -60,7 +67,7 @@ class SpotsRestController {
 
     @DeleteMapping("/{spotId}")
     @Operation(summary = "Deletes spot", description = "Deletes specific spot by id.")
-    public ResponseEntity<?> deleteSpot(@PathVariable String spotId, HttpServletRequest request) {
+    public ResponseEntity<?> deleteSpot(@PathVariable Long spotId, HttpServletRequest request) {
         try {
             spotsService.deleteSpot(spotId);
             ApiSuccess successResponse = new ApiSuccess("deleteSpot", "Spot deleted successfully!");
@@ -75,7 +82,7 @@ class SpotsRestController {
     @GetMapping("/{spotId}/reviews")
     @Operation(summary = "Get all reviews from spot", description = "Returns a list of review")
     public ResponseEntity<?> getSpotReviews(
-            @PathVariable String spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(spotsService.getSpotReviews(spotId, pageNum));
 
@@ -91,7 +98,7 @@ class SpotsRestController {
             summary = "Adds new review to spot",
             description = "Adds new review to specific spot using spots id.")
     public ResponseEntity<?> addSpotReview(
-            @PathVariable String spotId, @RequestBody ReviewDto review, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestBody ReviewDto review, HttpServletRequest request) {
         try {
             spotsService.addSpotReview(spotId, review);
             ApiSuccess successResponse = new ApiSuccess("addReview", "Review added for spot!");
@@ -142,7 +149,7 @@ class SpotsRestController {
             summary = " Gets users that have conquered a spot",
             description = "Gets a list of spot conquerors by specific spotId in paged manner.")
     public ResponseEntity<?> getConquerors(
-            @PathVariable String spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
         try {
             return ResponseEntity.ok(spotsService.getConquerorsOfSpot(spotId, pageNum));
         } catch (SpotConqueredException | InvalidInputException e) {
@@ -157,7 +164,7 @@ class SpotsRestController {
             summary = " Adds user who have visited this spot",
             description = "Adds user entity to the spots conquered list.")
     public ResponseEntity<?> conquerSpot(
-            @PathVariable String spotId, @RequestBody UserDto userDto, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestBody UserDto userDto, HttpServletRequest request) {
         try {
             spotsService.conquerSpot(spotId, userDto);
             ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Spot conquered!");

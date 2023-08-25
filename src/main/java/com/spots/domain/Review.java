@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Review {
     private String id;
-    private String spotId;
+    private Long spotId;
     private UserInfo userInfo;
 
     @Min(value = 1, message = "Rating must be between 1 and 10.")

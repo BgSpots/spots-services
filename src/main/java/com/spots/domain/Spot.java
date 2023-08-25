@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Document
 public class Spot {
-    private String id;
+    private long id;
     @NotBlank private String name;
     private Location location;
     @NotBlank private String description;

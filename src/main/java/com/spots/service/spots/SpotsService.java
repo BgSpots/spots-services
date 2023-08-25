@@ -11,6 +11,7 @@ import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.user.InvalidUserException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +28,14 @@ public class SpotsService {
     private final UserRepository userRepository;
     private final SpotConquerorRepository spotConquerorRepository;
     private static final Random random = new Random();
+    private static AtomicLong spotId = new AtomicLong();
 
     private final ReviewRepository reviewRepository;
 
     public void createSpot(SpotDto spotDto) {
         Spot spot =
                 Spot.builder()
-                        .id(randomId())
+                        .id(spotId.get())
                         .name(spotDto.getName())
                         .location(spotDto.getLocation())
                         .overallRating(1)
@@ -44,6 +46,7 @@ public class SpotsService {
             throw new InvalidSpotNameException("Spot with this name already exists!");
         }
         spotsRepository.insert(spot);
+        spotId.incrementAndGet();
     }
 
     public void updateSpot(SpotDto spotDto) {
@@ -55,7 +58,7 @@ public class SpotsService {
         spotsRepository.save(spot);
     }
 
-    public void deleteSpot(String spotId) {
+    public void deleteSpot(Long spotId) {
         if (!spotsRepository.existsSpotById(spotId)) {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
         }
@@ -66,7 +69,14 @@ public class SpotsService {
         return spotsRepository.findAll();
     }
 
-    public List<Review> getSpotReviews(String spotId, Integer pageNum) {
+    public Spot getRandomSpot() {
+        Long randomIndex = random.nextLong(spotId.get());
+        return spotsRepository
+                .findById(randomIndex)
+                .orElseThrow(() -> new InvalidSpotIdException("Invalid spot id"));
+    }
+
+    public List<Review> getSpotReviews(Long spotId, Integer pageNum) {
         Pageable pageable = PageRequest.of(pageNum, 5);
         List<Review> reviews = reviewRepository.findAllBySpotId(spotId, pageable).getContent();
 
@@ -77,7 +87,7 @@ public class SpotsService {
         return reviews;
     }
 
-    public void addSpotReview(String spotId, ReviewDto reviewDto) {
+    public void addSpotReview(Long spotId, ReviewDto reviewDto) {
         Review review = Review.builder().build();
 
         User user =
@@ -127,7 +137,7 @@ public class SpotsService {
         reviewRepository.deleteById(reviewId);
     }
 
-    public List<SpotConqueror> getConquerorsOfSpot(String spotId, Integer pageNum) {
+    public List<SpotConqueror> getConquerorsOfSpot(Long spotId, Integer pageNum) {
         Pageable pageable = PageRequest.of(pageNum, 5);
         List<SpotConqueror> conquerors =
                 spotConquerorRepository.findAllBySpotId(spotId, pageable).getContent();
@@ -137,7 +147,7 @@ public class SpotsService {
         return conquerors;
     }
 
-    public void conquerSpot(String spotId, UserDto userDto) {
+    public void conquerSpot(Long spotId, UserDto userDto) {
         if (userRepository.findById(userDto.getId()).isEmpty()) {
             throw new SpotConqueredException("User doesn't exist");
         }

@@ -3,16 +3,16 @@ package com.spots.dto;
 import com.spots.domain.Location;
 
 public class SpotDto {
-    private String id;
+    private Long id;
     private String name;
     private Location location;
     private String description;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

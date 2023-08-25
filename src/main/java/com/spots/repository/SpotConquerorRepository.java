@@ -9,5 +9,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface SpotConquerorRepository extends MongoRepository<SpotConqueror, String> {
     Optional<SpotConqueror> findSpotConquerorByUsername(String username);
 
-    Page<SpotConqueror> findAllBySpotId(String spotId, Pageable pageable);
+    Page<SpotConqueror> findAllBySpotId(Long spotId, Pageable pageable);
 }

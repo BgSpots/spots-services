@@ -1,7 +1,7 @@
 package com.spots.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -99,10 +99,10 @@ public class SpotsRestControllerTest {
         SecurityContextHolder.setContext(securityContext);
 
         Spot spot1 =
-                Spot.builder().id("123").name("spot1").description("description1").overallRating(1).build();
+                Spot.builder().id(123L).name("spot1").description("description1").overallRating(1).build();
 
         Spot spot2 =
-                Spot.builder().id("456").name("spot2").description("description2").overallRating(2).build();
+                Spot.builder().id(456L).name("spot2").description("description2").overallRating(2).build();
 
         List<Spot> spots = Arrays.asList(spot1, spot2);
 
@@ -209,7 +209,7 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Spot deleted successfully!"));
         ;
 
-        verify(spotsService, times(1)).deleteSpot("123");
+        verify(spotsService, times(1)).deleteSpot(123L);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class SpotsRestControllerTest {
         List<Review> reviews = new ArrayList<>();
         reviews.add(review);
 
-        when(spotsService.getSpotReviews("123", 1)).thenReturn(reviews);
+        when(spotsService.getSpotReviews(123L, 1)).thenReturn(reviews);
 
         mockMvc
                 .perform(
@@ -236,7 +236,7 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].rating").value(review.getRating()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].comment").value(review.getComment()));
 
-        verify(spotsService, times(1)).getSpotReviews("123", 1);
+        verify(spotsService, times(1)).getSpotReviews(123L, 1);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class SpotsRestControllerTest {
         ;
 
         ArgumentCaptor<ReviewDto> reviewCaptor = ArgumentCaptor.forClass(ReviewDto.class);
-        verify(spotsService, times(1)).addSpotReview(anyString(), reviewCaptor.capture());
+        verify(spotsService, times(1)).addSpotReview(anyLong(), reviewCaptor.capture());
 
         ReviewDto reviewDto = reviewCaptor.getValue();
 
@@ -345,7 +345,7 @@ public class SpotsRestControllerTest {
         ;
 
         ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
-        verify(spotsService, times(1)).conquerSpot(anyString(), userCaptor.capture());
+        verify(spotsService, times(1)).conquerSpot(anyLong(), userCaptor.capture());
 
         UserDto user = userCaptor.getValue();
 

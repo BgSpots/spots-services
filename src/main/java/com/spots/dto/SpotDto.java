@@ -8,6 +8,16 @@ public class SpotDto {
     private Location location;
     private String description;
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    private byte[] image;
+
     public Long getId() {
         return id;
     }

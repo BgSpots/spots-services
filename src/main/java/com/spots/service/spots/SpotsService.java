@@ -35,18 +35,18 @@ public class SpotsService {
     public void createSpot(SpotDto spotDto) {
         Spot spot =
                 Spot.builder()
-                        .id(spotId.get())
+                        .id(spotId.getAndIncrement())
                         .name(spotDto.getName())
                         .location(spotDto.getLocation())
                         .overallRating(1)
                         .description(spotDto.getDescription())
+                        .image(spotDto.getImage())
                         .build();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
             throw new InvalidSpotNameException("Spot with this name already exists!");
         }
         spotsRepository.insert(spot);
-        spotId.incrementAndGet();
     }
 
     public void updateSpot(SpotDto spotDto) {
@@ -70,7 +70,7 @@ public class SpotsService {
     }
 
     public Spot getRandomSpot() {
-        Long randomIndex = random.nextLong(spotId.get());
+        Long randomIndex = random.nextLong(spotsRepository.count());
         return spotsRepository
                 .findById(randomIndex)
                 .orElseThrow(() -> new InvalidSpotIdException("Invalid spot id"));

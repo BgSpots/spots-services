@@ -40,7 +40,7 @@ public class SpotsService {
                         .location(spotDto.getLocation())
                         .overallRating(1)
                         .description(spotDto.getDescription())
-                        .image(spotDto.getImage())
+                        .imageBase64(spotDto.getImageBase64())
                         .build();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
@@ -71,9 +71,10 @@ public class SpotsService {
 
     public Spot getRandomSpot() {
         Long randomIndex = random.nextLong(spotsRepository.count());
-        return spotsRepository
-                .findById(randomIndex)
-                .orElseThrow(() -> new InvalidSpotIdException("Invalid spot id"));
+        while (true) {
+            final var randomSpot = spotsRepository.findById(randomIndex);
+            if (randomSpot.isPresent()) return randomSpot.get();
+        }
     }
 
     public List<Review> getSpotReviews(Long spotId, Integer pageNum) {

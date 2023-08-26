@@ -20,5 +20,5 @@ public class Spot {
     @Max(value = 10, message = "Overall rating must be between 1 and 10.")
     private float overallRating;
 
-    private byte[] image; // New field to store image data
+    private String imageBase64; // New field to store image data
 }

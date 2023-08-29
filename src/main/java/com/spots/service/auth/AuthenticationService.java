@@ -76,13 +76,14 @@ public class AuthenticationService {
                             .block();
             final var user =
                     User.builder()
-                            .username(googleUserDTO.getName())
                             .id(googleUserDTO.getId())
+                            .username(googleUserDTO.getEmail())
                             .email(googleUserDTO.getEmail())
+                            .role(Role.USER)
                             .picture(googleUserDTO.getPicture())
                             .build();
             userRepository.save(user);
-            googleUserDTO.setJwt(jwtService.generateToken(user));
+            googleUserDTO.setJwtToken(jwtService.generateToken(user));
             return googleUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");
@@ -104,13 +105,13 @@ public class AuthenticationService {
                             .block();
             final var user =
                     User.builder()
-                            .username(facebookUserDTO.getName())
                             .id(facebookUserDTO.getId())
+                            .username(facebookUserDTO.getEmail())
                             .email(facebookUserDTO.getEmail())
                             .picture(facebookUserDTO.getPicture().getUrl())
                             .build();
             userRepository.save(user);
-            facebookUserDTO.setJwt(jwtService.generateToken(user));
+            facebookUserDTO.setJwtToken(jwtService.generateToken(user));
             return facebookUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");

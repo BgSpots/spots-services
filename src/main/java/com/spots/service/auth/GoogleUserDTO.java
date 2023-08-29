@@ -11,7 +11,7 @@ public class GoogleUserDTO {
     private boolean verifiedEmail;
     private String name;
     private String picture;
-    private String jwt;
+    private String jwtToken;
 
     @JsonCreator
     public GoogleUserDTO(

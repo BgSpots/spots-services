@@ -8,7 +8,7 @@ public class FacebookUserDTO {
     private String name;
     private PictureDataDTO picture;
     private String email;
-    private String jwt;
+    private String jwtToken;
 
     // Define the inner class for "PictureDataDTO"
     @Data

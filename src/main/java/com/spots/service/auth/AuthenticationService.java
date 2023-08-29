@@ -105,13 +105,13 @@ public class AuthenticationService {
                             .block();
             final var user =
                     User.builder()
-                            .username(facebookUserDTO.getName())
                             .id(facebookUserDTO.getId())
+                            .username(facebookUserDTO.getEmail())
                             .email(facebookUserDTO.getEmail())
                             .picture(facebookUserDTO.getPicture().getUrl())
                             .build();
             userRepository.save(user);
-            facebookUserDTO.setJwt(jwtService.generateToken(user));
+            facebookUserDTO.setJwtToken(jwtService.generateToken(user));
             return facebookUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");

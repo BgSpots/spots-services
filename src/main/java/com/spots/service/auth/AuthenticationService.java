@@ -76,13 +76,14 @@ public class AuthenticationService {
                             .block();
             final var user =
                     User.builder()
-                            .username(googleUserDTO.getName())
                             .id(googleUserDTO.getId())
+                            .username(googleUserDTO.getEmail())
                             .email(googleUserDTO.getEmail())
+                            .role(Role.USER)
                             .picture(googleUserDTO.getPicture())
                             .build();
             userRepository.save(user);
-            googleUserDTO.setJwt(jwtService.generateToken(user));
+            googleUserDTO.setJwtToken(jwtService.generateToken(user));
             return googleUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");

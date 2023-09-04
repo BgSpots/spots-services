@@ -13,6 +13,11 @@ public class FacebookUserDTO {
     // Define the inner class for "PictureDataDTO"
     @Data
     public static class PictureDataDTO {
+        private PictureDTO data;
+    }
+
+    @Data
+    public static class PictureDTO {
         private int height;
         private boolean isSilhouette;
         private String url;

@@ -108,7 +108,7 @@ public class AuthenticationService {
                             .id(facebookUserDTO.getId())
                             .username(facebookUserDTO.getEmail())
                             .email(facebookUserDTO.getEmail())
-                            .picture(facebookUserDTO.getPicture().getUrl())
+                            .picture(facebookUserDTO.getPicture().getData().getUrl())
                             .build();
             userRepository.save(user);
             facebookUserDTO.setJwtToken(jwtService.generateToken(user));

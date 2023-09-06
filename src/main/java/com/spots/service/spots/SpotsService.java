@@ -1,6 +1,7 @@
 package com.spots.service.spots;
 
 import com.spots.common.GenericValidator;
+import com.spots.config.InvalidJwtTokenException;
 import com.spots.domain.*;
 import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
@@ -9,7 +10,10 @@ import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotConquerorRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
+import com.spots.service.auth.JwtService;
 import com.spots.service.user.InvalidUserException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ public class SpotsService {
     private static final Random random = new Random();
     private static AtomicLong spotId = new AtomicLong();
 
+    private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
 
     public void createSpot(SpotDto spotDto) {
@@ -69,8 +74,19 @@ public class SpotsService {
         return spotsRepository.findAll();
     }
 
-    public Spot getRandomSpot() {
+    public Spot getRandomSpot(String authHeader) {
         Long randomIndex = random.nextLong(spotsRepository.count());
+        String jwt = authHeader.substring(7);
+        final var user =
+                userRepository
+                        .findUserByEmail(jwtService.extractEmail(jwt))
+                        .orElseThrow(() -> new InvalidJwtTokenException("Invalid jwt token"));
+        if (user.getNextRandomSpotGeneratedTime() != null
+                && LocalDateTime.now().isBefore(user.getNextRandomSpotGeneratedTime())) {
+            throw new RandomSpotIsNotAvailableYet("Random spot is not available yet!");
+        }
+        user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
+        userRepository.save(user);
         while (true) {
             final var randomSpot = spotsRepository.findById(randomIndex);
             if (randomSpot.isPresent()) return randomSpot.get();

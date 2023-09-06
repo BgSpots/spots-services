@@ -62,7 +62,9 @@ class AuthenticationRestControllerTest {
                                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andReturn();
-        assertEquals("{\"access_token\":\"token\"}", result.getResponse().getContentAsString());
+        assertEquals(
+                "{\"access_token\":\"token\",\"time_until_next_roll\":0}",
+                result.getResponse().getContentAsString());
     }
 
     @Test

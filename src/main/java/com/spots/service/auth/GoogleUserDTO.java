@@ -2,6 +2,7 @@ package com.spots.service.auth;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Duration;
 import lombok.Data;
 
 @Data
@@ -12,6 +13,7 @@ public class GoogleUserDTO {
     private String name;
     private String picture;
     private String jwtToken;
+    private Duration timeUntilNextRoll;
 
     @JsonCreator
     public GoogleUserDTO(

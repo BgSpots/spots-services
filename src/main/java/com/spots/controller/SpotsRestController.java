@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,8 @@ class SpotsRestController {
     @GetMapping("/random")
     @Operation(summary = "Get random spot", description = "Returns a random spot from db.")
     public ResponseEntity<?> getRandomSpot(HttpServletRequest request) {
-        Spot spot = spotsService.getRandomSpot();
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        Spot spot = spotsService.getRandomSpot(authHeader);
         return ResponseEntity.ok(spot);
     }
 

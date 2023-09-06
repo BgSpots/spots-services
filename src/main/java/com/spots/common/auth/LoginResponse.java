@@ -13,4 +13,7 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
     @JsonProperty("access_token")
     private String accessToken;
+
+    @JsonProperty("time_until_next_roll")
+    private long timeUntilNextRoll;
 }

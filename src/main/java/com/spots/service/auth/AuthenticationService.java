@@ -9,6 +9,8 @@ import com.spots.domain.Role;
 import com.spots.domain.User;
 import com.spots.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +48,14 @@ public class AuthenticationService {
         }
         var jwtToken = jwtService.generateToken(user);
         userRepository.insert(user);
-        return LoginResponse.builder().accessToken(jwtToken).build();
+        final var timeUntilNextRoll =
+                user.getNextRandomSpotGeneratedTime() == null
+                        ? Duration.ZERO
+                        : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+        return LoginResponse.builder()
+                .accessToken(jwtToken)
+                .timeUntilNextRoll(timeUntilNextRoll.getSeconds())
+                .build();
     }
 
     public LoginResponse login(LoginBody body) {
@@ -60,7 +69,14 @@ public class AuthenticationService {
         userDto.setUsername(body.getEmail());
         var jwtToken = jwtService.generateToken(userDto);
         // return jwt token to client
-        return LoginResponse.builder().accessToken(jwtToken).build();
+        final var timeUntilNextRoll =
+                userDto.getNextRandomSpotGeneratedTime() == null
+                        ? Duration.ZERO
+                        : Duration.between(LocalDateTime.now(), userDto.getNextRandomSpotGeneratedTime());
+        return LoginResponse.builder()
+                .accessToken(jwtToken)
+                .timeUntilNextRoll(timeUntilNextRoll.getSeconds())
+                .build();
     }
 
     public GoogleUserDTO loginWithGoogle(String accessToken) {
@@ -84,6 +100,8 @@ public class AuthenticationService {
                             .build();
             userRepository.save(user);
             googleUserDTO.setJwtToken(jwtService.generateToken(user));
+            googleUserDTO.setTimeUntilNextRoll(
+                    Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
             return googleUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");
@@ -112,6 +130,8 @@ public class AuthenticationService {
                             .build();
             userRepository.save(user);
             facebookUserDTO.setJwtToken(jwtService.generateToken(user));
+            facebookUserDTO.setTimeUntilNextRoll(
+                    Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
             return facebookUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");

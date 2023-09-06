@@ -1,7 +1,6 @@
 package com.spots.controller;
 
 import com.spots.common.auth.LoginBody;
-import com.spots.common.auth.LoginResponse;
 import com.spots.common.auth.RegisterBody;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.EmailTakenException;
@@ -97,11 +96,5 @@ public class AuthenticationRestController {
                     new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
-    }
-
-    @PostMapping("/login/instagram")
-    public ResponseEntity<LoginResponse> loginWithInstagram(@RequestBody String accessToken) {
-        // TODO
-        return ResponseEntity.ok(null);
     }
 }

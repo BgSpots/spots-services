@@ -1,9 +1,9 @@
-package com.spots.dto;
+package com.spots.common.input;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
-public class UserDto {
+public class UserBody {
     private String id;
     private String username;
 
@@ -14,6 +14,26 @@ public class UserDto {
     private String password;
 
     private String picture;
+
+    private long timeUntilNextRoll;
+
+    private long currentSpotId;
+
+    public long getCurrentSpotId() {
+        return currentSpotId;
+    }
+
+    public void setCurrentSpotId(long currentSpotId) {
+        this.currentSpotId = currentSpotId;
+    }
+
+    public long getTimeUntilNextRoll() {
+        return timeUntilNextRoll;
+    }
+
+    public void setTimeUntilNextRoll(long timeUntilNextRoll) {
+        this.timeUntilNextRoll = timeUntilNextRoll;
+    }
 
     public String getId() {
         return id;

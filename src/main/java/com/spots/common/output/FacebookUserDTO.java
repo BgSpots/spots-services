@@ -1,11 +1,10 @@
-package com.spots.service.auth;
+package com.spots.common.output;
 
 import java.time.Duration;
 import lombok.Data;
 
 @Data
 public class FacebookUserDTO {
-    private String id;
     private String name;
     private PictureDataDTO picture;
     private String email;

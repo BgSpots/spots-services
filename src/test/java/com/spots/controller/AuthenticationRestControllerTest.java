@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.google.gson.Gson;
-import com.spots.common.auth.RegisterBody;
+import com.spots.common.input.RegisterBody;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.config.SecurityConfiguration;
 import com.spots.domain.User;
@@ -63,7 +63,7 @@ class AuthenticationRestControllerTest {
                         .andExpect(status().isOk())
                         .andReturn();
         assertEquals(
-                "{\"access_token\":\"token\",\"time_until_next_roll\":0}",
+                "{\"access_token\":\"token\",\"time_until_next_roll\":0,\"current_spot_id\":0}",
                 result.getResponse().getContentAsString());
     }
 

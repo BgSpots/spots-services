@@ -1,4 +1,4 @@
-package com.spots.common.auth;
+package com.spots.common.output;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -16,4 +16,7 @@ public class LoginResponse {
 
     @JsonProperty("time_until_next_roll")
     private long timeUntilNextRoll;
+
+    @JsonProperty("current_spot_id")
+    private long currentSpotId;
 }

@@ -1,11 +1,11 @@
 package com.spots.service.spots;
 
 import com.spots.common.GenericValidator;
+import com.spots.common.input.ReviewBody;
+import com.spots.common.input.UserBody;
 import com.spots.config.InvalidJwtTokenException;
 import com.spots.domain.*;
-import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
-import com.spots.dto.UserDto;
 import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotConquerorRepository;
 import com.spots.repository.SpotsRepository;
@@ -32,15 +32,15 @@ public class SpotsService {
     private final UserRepository userRepository;
     private final SpotConquerorRepository spotConquerorRepository;
     private static final Random random = new Random();
-    private static AtomicLong spotId = new AtomicLong();
-
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
+    public static AtomicLong spotId = new AtomicLong(1L);
+    public static AtomicLong reviewId = new AtomicLong(1L);
 
     public void createSpot(SpotDto spotDto) {
         Spot spot =
                 Spot.builder()
-                        .id(spotId.getAndIncrement())
+                        .id(spotId.get())
                         .name(spotDto.getName())
                         .location(spotDto.getLocation())
                         .overallRating(1)
@@ -52,6 +52,7 @@ public class SpotsService {
             throw new InvalidSpotNameException("Spot with this name already exists!");
         }
         spotsRepository.insert(spot);
+        spotId.incrementAndGet();
     }
 
     public void updateSpot(SpotDto spotDto) {
@@ -74,6 +75,12 @@ public class SpotsService {
         return spotsRepository.findAll();
     }
 
+    public Spot getSpot(Long id) {
+        return spotsRepository
+                .findById(id)
+                .orElseThrow(() -> new InvalidSpotIdException("Invalid spot id"));
+    }
+
     public Spot getRandomSpot(String authHeader) {
         Long randomIndex = random.nextLong(spotsRepository.count());
         String jwt = authHeader.substring(7);
@@ -85,11 +92,15 @@ public class SpotsService {
                 && LocalDateTime.now().isBefore(user.getNextRandomSpotGeneratedTime())) {
             throw new RandomSpotIsNotAvailableYet("Random spot is not available yet!");
         }
-        user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
-        userRepository.save(user);
         while (true) {
             final var randomSpot = spotsRepository.findById(randomIndex);
-            if (randomSpot.isPresent()) return randomSpot.get();
+            if (randomSpot.isPresent()) {
+                user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
+                user.setCurrentSpotId(randomIndex);
+                userRepository.save(user);
+                return randomSpot.get();
+            }
+            randomIndex = random.nextLong(spotsRepository.count());
         }
     }
 
@@ -104,22 +115,25 @@ public class SpotsService {
         return reviews;
     }
 
-    public void addSpotReview(Long spotId, ReviewDto reviewDto) {
-        Review review = Review.builder().build();
-
+    public void addSpotReview(Long spotId, ReviewBody reviewBody, String authHeader) {
+        final String jwt = authHeader.substring(7);
         User user =
                 userRepository
-                        .findById(reviewDto.getUserId())
+                        .findUserByEmail(jwtService.extractEmail(jwt))
                         .orElseThrow(() -> new InvalidUserException(USER_WITH_THIS_ID_DOESN_T_EXISTS));
-
-        review.setId(randomId());
-        review.setSpotId(spotId);
-        review.setComment(reviewDto.getComment());
-        review.setRating(reviewDto.getRating());
-        UserInfo reviewerInfo = new UserInfo();
-        reviewerInfo.setUserId(user.getId());
-        reviewerInfo.setUsername(user.getUsername());
-        reviewerInfo.setProfilePicture(user.getPicture());
+        Review review =
+                Review.builder()
+                        .id(reviewId.get())
+                        .spotId(spotId)
+                        .comment(reviewBody.getComment())
+                        .rating(reviewBody.getRating())
+                        .build();
+        UserInfo reviewerInfo =
+                UserInfo.builder()
+                        .userId(user.getId())
+                        .username(user.getUsername())
+                        .profilePicture(user.getPicture())
+                        .build();
         review.setUserInfo(reviewerInfo);
 
         GenericValidator<Review> reviewValidator = new GenericValidator<>();
@@ -128,23 +142,15 @@ public class SpotsService {
                 spotsRepository
                         .findById(spotId)
                         .orElseThrow(() -> new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS));
+        List<Review> reviews =
+                reviewRepository.findAllBySpotId(spotId, Pageable.ofSize(10)).getContent();
+        OptionalDouble averageRating = reviews.stream().mapToDouble(Review::getRating).average();
+        double overallRating = averageRating.orElse(0.0); // Default to 0 if there are no reviews
+        spot.setOverallRating((float) overallRating);
+
         reviewRepository.insert(review);
-
         spotsRepository.save(spot);
-    }
-
-    public void updateSpotReview(ReviewDto reviewDto) {
-        Review existingReview =
-                reviewRepository
-                        .findById(reviewDto.getId())
-                        .orElseThrow(() -> new InvalidReviewIdException("Review with this id doesn't exists!"));
-        existingReview.setRating(reviewDto.getRating());
-        existingReview.setComment(reviewDto.getComment());
-
-        GenericValidator<Review> reviewValidator = new GenericValidator<>();
-        reviewValidator.validate(existingReview);
-
-        reviewRepository.save(existingReview);
+        reviewId.incrementAndGet();
     }
 
     public void deleteSpotReview(String reviewId) {
@@ -164,29 +170,23 @@ public class SpotsService {
         return conquerors;
     }
 
-    public void conquerSpot(Long spotId, UserDto userDto) {
-        if (userRepository.findById(userDto.getId()).isEmpty()) {
+    public void conquerSpot(Long spotId, UserBody userBody) {
+        if (userRepository.findById(userBody.getId()).isEmpty()) {
             throw new SpotConqueredException("User doesn't exist");
         }
 
-        if (!spotConquerorRepository.findSpotConquerorByUsername(userDto.getUsername()).isEmpty()) {
+        if (!spotConquerorRepository.findSpotConquerorByUsername(userBody.getUsername()).isEmpty()) {
             throw new SpotConqueredException("Spot is conquered already");
         }
 
         SpotConqueror spotConqueror =
                 SpotConqueror.builder()
-                        .username(userDto.getUsername())
+                        .username(userBody.getUsername())
                         .spotId(spotId)
-                        .profilePicture(userDto.getPicture())
+                        .profilePicture(userBody.getPicture())
                         .build();
 
         spotConquerorRepository.save(spotConqueror);
-    }
-
-    private static String randomId() {
-        long max = 1000000L;
-        long min = 9999999L;
-        return min + random.nextLong() % (max - min + 1) + "";
     }
 
     public void fromDtoToEntity(SpotDto spotDto, Spot spot) {

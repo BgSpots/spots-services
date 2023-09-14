@@ -1,7 +1,8 @@
 package com.spots.controller;
 
-import com.spots.common.auth.LoginBody;
-import com.spots.common.auth.RegisterBody;
+import com.spots.common.input.LoginBody;
+import com.spots.common.input.RegisterBody;
+import com.spots.common.output.ApiError;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidAccessTokenException;
@@ -9,6 +10,7 @@ import com.spots.service.auth.InvalidInputException;
 import com.spots.service.auth.InvalidLoginCredenials;
 import com.spots.service.auth.UserAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,11 @@ public class AuthenticationRestController {
                     authService.register(body.toBuilder().ip(request.getRemoteAddr()).build()));
         } catch (EmailTakenException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -56,7 +62,11 @@ public class AuthenticationRestController {
                     authService.login(body.toBuilder().ip(request.getRemoteAddr()).build()));
         } catch (InvalidLoginCredenials e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -81,7 +91,11 @@ public class AuthenticationRestController {
             return ResponseEntity.ok(authService.loginWithGoogle(accessToken));
         } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -93,7 +107,11 @@ public class AuthenticationRestController {
             return ResponseEntity.ok(authService.loginWithFacebook(accessToken));
         } catch (UserAlreadyExistsException | InvalidAccessTokenException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }

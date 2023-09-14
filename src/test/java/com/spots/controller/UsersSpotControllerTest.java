@@ -6,11 +6,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.google.gson.Gson;
 import com.spots.common.GenericValidator;
+import com.spots.common.input.UserBody;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.config.SecurityConfiguration;
 import com.spots.domain.Role;
 import com.spots.domain.User;
-import com.spots.dto.UserDto;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.JwtService;
@@ -89,7 +89,7 @@ public class UsersSpotControllerTest {
 
         User user1 =
                 User.builder()
-                        .id("id1")
+                        .id(1)
                         .role(role)
                         .username("user1")
                         .email("email123")
@@ -98,7 +98,7 @@ public class UsersSpotControllerTest {
 
         User user2 =
                 User.builder()
-                        .id("id2")
+                        .id(2)
                         .role(role)
                         .username("user2")
                         .email("email1234")
@@ -137,32 +137,32 @@ public class UsersSpotControllerTest {
         Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
         SecurityContextHolder.setContext(securityContext);
 
-        UserDto userDto = new UserDto();
-        userDto.setId("123");
-        userDto.setUsername("usr_test");
-        userDto.setPassword("password");
-        userDto.setEmail("test_email");
+        UserBody userBody = new UserBody();
+        userBody.setId("123");
+        userBody.setUsername("usr_test");
+        userBody.setPassword("password");
+        userBody.setEmail("test_email");
 
         mockMvc
                 .perform(
                         MockMvcRequestBuilders.post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
-                                .content(new Gson().toJson(userDto)))
+                                .content(new Gson().toJson(userBody)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("addUser"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("User added successfully!"));
 
-        ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
+        ArgumentCaptor<UserBody> userCaptor = ArgumentCaptor.forClass(UserBody.class);
 
         verify(userService, times(1)).createUser(userCaptor.capture());
 
-        UserDto userCaptorValue = userCaptor.getValue();
+        UserBody userCaptorValue = userCaptor.getValue();
 
         // Now you can assert that the captured spot has expected values
-        assertEquals(userDto.getEmail(), userCaptorValue.getEmail());
-        assertEquals(userDto.getUsername(), userCaptorValue.getUsername());
-        assertEquals(userDto.getPassword(), userCaptorValue.getPassword());
+        assertEquals(userBody.getEmail(), userCaptorValue.getEmail());
+        assertEquals(userBody.getUsername(), userCaptorValue.getUsername());
+        assertEquals(userBody.getPassword(), userCaptorValue.getPassword());
     }
 
     @Test
@@ -172,32 +172,32 @@ public class UsersSpotControllerTest {
         Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
         SecurityContextHolder.setContext(securityContext);
 
-        UserDto userDto = new UserDto();
-        userDto.setId("123");
-        userDto.setUsername("usr_test");
-        userDto.setPassword("password");
-        userDto.setEmail("test_email");
+        UserBody userBody = new UserBody();
+        userBody.setId("123");
+        userBody.setUsername("usr_test");
+        userBody.setPassword("password");
+        userBody.setEmail("test_email");
 
         mockMvc
                 .perform(
                         MockMvcRequestBuilders.put("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf())
-                                .content(new Gson().toJson(userDto)))
+                                .content(new Gson().toJson(userBody)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("updateUser"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("User updated successfully!"));
 
-        ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
+        ArgumentCaptor<UserBody> userCaptor = ArgumentCaptor.forClass(UserBody.class);
 
         verify(userService, times(1)).updateUser(userCaptor.capture());
 
-        UserDto userCaptorValue = userCaptor.getValue();
+        UserBody userCaptorValue = userCaptor.getValue();
 
         // Now you can assert that the captured spot has expected values
-        assertEquals(userDto.getEmail(), userCaptorValue.getEmail());
-        assertEquals(userDto.getUsername(), userCaptorValue.getUsername());
-        assertEquals(userDto.getPassword(), userCaptorValue.getPassword());
+        assertEquals(userBody.getEmail(), userCaptorValue.getEmail());
+        assertEquals(userBody.getUsername(), userCaptorValue.getUsername());
+        assertEquals(userBody.getPassword(), userCaptorValue.getPassword());
     }
 
     @Test

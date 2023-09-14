@@ -15,11 +15,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @Document
 public class User implements UserDetails {
-    private String id;
+    private long id;
     private Role role;
     private String username;
     private String picture;
     private LocalDateTime nextRandomSpotGeneratedTime;
+    private long currentSpotId;
 
     @NotBlank(message = "User email can't be blank")
     @Email(message = "Email must be valid!")

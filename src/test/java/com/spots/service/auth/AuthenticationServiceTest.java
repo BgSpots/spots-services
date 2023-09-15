@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.when;
 
-import com.spots.common.auth.LoginBody;
-import com.spots.common.auth.RegisterBody;
+import com.spots.common.input.LoginBody;
+import com.spots.common.input.RegisterBody;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.domain.User;
 import com.spots.repository.UserRepository;

@@ -1,23 +1,18 @@
-package com.spots.controller;
+package com.spots.common.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /** Object returned from the api in case error occurs */
-@Getter
-class ApiError {
+@Data
+@AllArgsConstructor
+public class ApiError {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     private int status;
     private String error;
     private String path;
-
-    ApiError(int status, String message, String path) {
-        this.timestamp = LocalDateTime.now();
-        this.status = status;
-        this.error = message;
-        this.path = path;
-    }
 }

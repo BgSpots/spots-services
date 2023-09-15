@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Document
 public class Review {
-    private String id;
+    private long id;
     private Long spotId;
     private UserInfo userInfo;
 

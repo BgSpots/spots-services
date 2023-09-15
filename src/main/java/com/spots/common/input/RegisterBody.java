@@ -1,4 +1,4 @@
-package com.spots.common.auth;
+package com.spots.common.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginBody {
+public class RegisterBody {
     private String email;
-    String password;
-    String ip;
+    private String password;
+    private String ip;
 }

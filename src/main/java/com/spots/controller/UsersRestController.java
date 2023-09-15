@@ -1,7 +1,9 @@
 package com.spots.controller;
 
+import com.spots.common.input.UserBody;
+import com.spots.common.output.ApiError;
+import com.spots.common.output.ApiSuccess;
 import com.spots.domain.User;
-import com.spots.dto.UserDto;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.user.InvalidUserException;
@@ -9,6 +11,7 @@ import com.spots.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,30 +32,45 @@ class UserRestController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/{email}")
+    @Operation(summary = "Get user", description = "Returns a list of user entity.")
+    public ResponseEntity<?> getUser(@PathVariable String email, HttpServletRequest request) {
+        User user = userService.getUser(email);
+        return ResponseEntity.ok(user);
+    }
+
     @PostMapping
     @Operation(summary = "Adds user", description = "Adds a new user entity.")
-    public ResponseEntity<?> addUser(@RequestBody UserDto userDto, HttpServletRequest request) {
+    public ResponseEntity<?> addUser(@RequestBody UserBody userBody, HttpServletRequest request) {
         try {
-            userService.createUser(userDto);
+            userService.createUser(userBody);
             ApiSuccess successResponse = new ApiSuccess("addUser", "User added successfully!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidUserException | EmailTakenException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
 
     @PutMapping
     @Operation(summary = "Updates user information", description = "Updates user entity.")
-    public ResponseEntity<?> updateUser(@RequestBody UserDto userDto, HttpServletRequest request) {
+    public ResponseEntity<?> updateUser(@RequestBody UserBody userBody, HttpServletRequest request) {
         try {
-            userService.updateUser(userDto);
+            userService.updateUser(userBody);
             ApiSuccess successResponse = new ApiSuccess("updateUser", "User updated successfully!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidUserException | EmailTakenException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -66,7 +84,11 @@ class UserRestController {
             return ResponseEntity.ok(successResponse);
         } catch (InvalidUserException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }

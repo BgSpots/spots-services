@@ -2,25 +2,25 @@ package com.spots.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.google.gson.Gson;
 import com.spots.common.GenericValidator;
+import com.spots.common.input.ReviewBody;
+import com.spots.common.input.UserBody;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.config.SecurityConfiguration;
 import com.spots.domain.Location;
 import com.spots.domain.Review;
 import com.spots.domain.Spot;
-import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
-import com.spots.dto.UserDto;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.AuthenticationService;
@@ -246,7 +246,7 @@ public class SpotsRestControllerTest {
         Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
         SecurityContextHolder.setContext(securityContext);
 
-        ReviewDto review = new ReviewDto("123", 2, "comment");
+        ReviewBody review = new ReviewBody(2, "comment");
 
         mockMvc
                 .perform(
@@ -259,45 +259,15 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review added for spot!"));
         ;
 
-        ArgumentCaptor<ReviewDto> reviewCaptor = ArgumentCaptor.forClass(ReviewDto.class);
-        verify(spotsService, times(1)).addSpotReview(anyLong(), reviewCaptor.capture());
+        ArgumentCaptor<ReviewBody> reviewCaptor = ArgumentCaptor.forClass(ReviewBody.class);
+        verify(spotsService, times(1))
+                .addSpotReview(anyLong(), reviewCaptor.capture(), nullable(String.class));
 
-        ReviewDto reviewDto = reviewCaptor.getValue();
-
-        // Now you can assert that the captured spot has expected values
-        assertEquals(review.getId(), reviewDto.getId());
-        assertEquals(review.getRating(), reviewDto.getRating());
-        assertEquals(review.getComment(), reviewDto.getComment());
-    }
-
-    @Test
-    @WithMockUser
-    public void testUpdateSpotReview() throws Exception {
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
-        SecurityContextHolder.setContext(securityContext);
-
-        ReviewDto review = new ReviewDto("123", 2, "comment");
-
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.put("/spots/reviews")
-                                .content(new Gson().toJson(review))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .with(csrf()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("updateReview"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review updated for spot!"));
-
-        ArgumentCaptor<ReviewDto> reviewCaptor = ArgumentCaptor.forClass(ReviewDto.class);
-        verify(spotsService, times(1)).updateSpotReview(reviewCaptor.capture());
-
-        ReviewDto reviewDto = reviewCaptor.getValue();
+        ReviewBody reviewBody = reviewCaptor.getValue();
 
         // Now you can assert that the captured spot has expected values
-        assertEquals(review.getId(), reviewDto.getId());
-        assertEquals(review.getRating(), reviewDto.getRating());
-        assertEquals(review.getComment(), reviewDto.getComment());
+        assertEquals(review.getRating(), reviewBody.getRating());
+        assertEquals(review.getComment(), reviewBody.getComment());
     }
 
     @Test
@@ -327,16 +297,16 @@ public class SpotsRestControllerTest {
         Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
         SecurityContextHolder.setContext(securityContext);
 
-        UserDto userDto = new UserDto();
-        userDto.setId("123");
-        userDto.setUsername("usr_test");
-        userDto.setPassword("password");
-        userDto.setEmail("test_email");
+        UserBody userBody = new UserBody();
+        userBody.setId("123");
+        userBody.setUsername("usr_test");
+        userBody.setPassword("password");
+        userBody.setEmail("test_email");
 
         mockMvc
                 .perform(
                         MockMvcRequestBuilders.post("/spots/123/conquer")
-                                .content(new Gson().toJson(userDto))
+                                .content(new Gson().toJson(userBody))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -344,15 +314,15 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Spot conquered!"));
         ;
 
-        ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
+        ArgumentCaptor<UserBody> userCaptor = ArgumentCaptor.forClass(UserBody.class);
         verify(spotsService, times(1)).conquerSpot(anyLong(), userCaptor.capture());
 
-        UserDto user = userCaptor.getValue();
+        UserBody user = userCaptor.getValue();
 
         // Now you can assert that the captured spot has expected values
-        assertEquals(userDto.getId(), user.getId());
-        assertEquals(userDto.getEmail(), user.getEmail());
-        assertEquals(userDto.getUsername(), user.getUsername());
-        assertEquals(userDto.getPassword(), user.getPassword());
+        assertEquals(userBody.getId(), user.getId());
+        assertEquals(userBody.getEmail(), user.getEmail());
+        assertEquals(userBody.getUsername(), user.getUsername());
+        assertEquals(userBody.getPassword(), user.getPassword());
     }
 }

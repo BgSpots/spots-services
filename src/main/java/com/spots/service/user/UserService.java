@@ -1,12 +1,12 @@
 package com.spots.service.user;
 
 import com.spots.common.GenericValidator;
+import com.spots.common.input.UserBody;
 import com.spots.domain.User;
-import com.spots.dto.UserDto;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,14 +17,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final GenericValidator<User> userValidator;
     private final PasswordEncoder passwordEncoder;
+    public static AtomicLong userId = new AtomicLong(1L);
 
-    public void createUser(UserDto userDto) {
+    public void createUser(UserBody userBody) {
         User user =
                 User.builder()
-                        .id(randomId())
-                        .username(userDto.getUsername())
-                        .email(userDto.getEmail())
-                        .password(userDto.getPassword())
+                        .id(userId.get())
+                        .username(userBody.getUsername())
+                        .email(userBody.getEmail())
+                        .password(userBody.getPassword())
                         .build();
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
@@ -32,19 +33,20 @@ public class UserService {
         userValidator.validate(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.insert(user);
+        userId.incrementAndGet();
     }
 
-    public void updateUser(UserDto userDto) {
-        if (userRepository.existsUserByEmail(userDto.getEmail())) {
+    public void updateUser(UserBody userBody) {
+        if (userRepository.existsUserByEmail(userBody.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
 
         User user =
                 userRepository
-                        .findById(userDto.getId())
+                        .findById(userBody.getId())
                         .orElseThrow(() -> new InvalidUserException("User does not exist!"));
-        user.setEmail(userDto.getEmail());
-        user.setUsername(userDto.getUsername());
+        user.setEmail(userBody.getEmail());
+        user.setUsername(userBody.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userValidator.validate(user);
         userRepository.save(user);
@@ -61,10 +63,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    private static String randomId() {
-        long max = 1000000L;
-        long min = 9999999L;
-        Random random = new Random();
-        return min + random.nextLong() % (max - min + 1) + "";
+    public User getUser(String email) {
+        return userRepository
+                .findUserByEmail(email)
+                .orElseThrow(() -> new InvalidUserException("Invalid email for user!"));
     }
 }

@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.google.gson.Gson;
-import com.spots.common.auth.RegisterBody;
+import com.spots.common.input.RegisterBody;
 import com.spots.controller.AuthenticationRestController;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.AuthenticationService;

@@ -1,16 +1,21 @@
 package com.spots.controller;
 
+import com.spots.common.input.ReviewBody;
+import com.spots.common.input.UserBody;
+import com.spots.common.output.ApiError;
+import com.spots.common.output.ApiSuccess;
 import com.spots.domain.Spot;
-import com.spots.dto.ReviewDto;
 import com.spots.dto.SpotDto;
-import com.spots.dto.UserDto;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.spots.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
 class SpotsRestController {
-
     private final SpotsService spotsService;
 
     @GetMapping
@@ -30,10 +34,18 @@ class SpotsRestController {
         return ResponseEntity.ok(spots);
     }
 
+    @GetMapping("/{spotId}")
+    @Operation(summary = "Get spot by id", description = "Returns a list of spots entity.")
+    public ResponseEntity<?> getSpot(@PathVariable Long spotId, HttpServletRequest request) {
+        Spot spot = spotsService.getSpot(spotId);
+        return ResponseEntity.ok(spot);
+    }
+
     @GetMapping("/random")
     @Operation(summary = "Get random spot", description = "Returns a random spot from db.")
     public ResponseEntity<?> getRandomSpot(HttpServletRequest request) {
-        Spot spot = spotsService.getRandomSpot();
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        Spot spot = spotsService.getRandomSpot(authHeader);
         return ResponseEntity.ok(spot);
     }
 
@@ -46,7 +58,11 @@ class SpotsRestController {
             return ResponseEntity.ok(successResponse);
         } catch (InvalidSpotNameException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -60,7 +76,11 @@ class SpotsRestController {
             return ResponseEntity.ok(successResponse);
         } catch (InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -74,7 +94,11 @@ class SpotsRestController {
             return ResponseEntity.ok(successResponse);
         } catch (InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -88,7 +112,11 @@ class SpotsRestController {
 
         } catch (NoReviewsException | InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -98,14 +126,18 @@ class SpotsRestController {
             summary = "Adds new review to spot",
             description = "Adds new review to specific spot using spots id.")
     public ResponseEntity<?> addSpotReview(
-            @PathVariable Long spotId, @RequestBody ReviewDto review, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestBody ReviewBody review, HttpServletRequest request) {
         try {
-            spotsService.addSpotReview(spotId, review);
+            spotsService.addSpotReview(spotId, review, request.getHeader(HttpHeaders.AUTHORIZATION));
             ApiSuccess successResponse = new ApiSuccess("addReview", "Review added for spot!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -115,14 +147,16 @@ class SpotsRestController {
             summary = "Updates existing review from spot",
             description = "Updates review from specific spot using spots id.")
     public ResponseEntity<?> updateSpotReview(
-            @RequestBody ReviewDto review, HttpServletRequest request) {
+            @RequestBody ReviewBody review, HttpServletRequest request) {
         try {
-            spotsService.updateSpotReview(review);
-            ApiSuccess successResponse = new ApiSuccess("updateReview", "Review updated for spot!");
-            return ResponseEntity.ok(successResponse);
+            throw new NotImplementedException("Not implemented yet");
         } catch (InvalidReviewIdException | InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -139,7 +173,11 @@ class SpotsRestController {
             return ResponseEntity.ok(successResponse);
         } catch (InvalidReviewIdException | InvalidSpotIdException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -154,7 +192,11 @@ class SpotsRestController {
             return ResponseEntity.ok(spotsService.getConquerorsOfSpot(spotId, pageNum));
         } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -164,14 +206,18 @@ class SpotsRestController {
             summary = " Adds user who have visited this spot",
             description = "Adds user entity to the spots conquered list.")
     public ResponseEntity<?> conquerSpot(
-            @PathVariable Long spotId, @RequestBody UserDto userDto, HttpServletRequest request) {
+            @PathVariable Long spotId, @RequestBody UserBody userBody, HttpServletRequest request) {
         try {
-            spotsService.conquerSpot(spotId, userDto);
+            spotsService.conquerSpot(spotId, userBody);
             ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Spot conquered!");
             return ResponseEntity.ok(successResponse);
         } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =
-                    new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), request.getRequestURI());
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
     }

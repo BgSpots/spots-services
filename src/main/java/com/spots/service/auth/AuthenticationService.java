@@ -38,6 +38,7 @@ public class AuthenticationService {
     public LoginResponse register(RegisterBody body) {
         var user =
                 User.builder()
+                        .id(userId.get())
                         .username(body.getEmail())
                         .email(body.getEmail())
                         .role(Role.USER)
@@ -58,6 +59,7 @@ public class AuthenticationService {
                 user.getNextRandomSpotGeneratedTime() == null
                         ? Duration.ZERO
                         : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+        userId.incrementAndGet();
         return LoginResponse.builder()
                 .accessToken(jwtToken)
                 .timeUntilNextRoll(timeUntilNextRoll.getSeconds())

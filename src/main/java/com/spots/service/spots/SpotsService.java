@@ -82,7 +82,7 @@ public class SpotsService {
     }
 
     public Spot getRandomSpot(String authHeader) {
-        Long randomIndex = random.nextLong(spotsRepository.count());
+        Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
         String jwt = authHeader.substring(7);
         final var user =
                 userRepository

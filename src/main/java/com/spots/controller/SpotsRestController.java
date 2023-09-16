@@ -1,7 +1,6 @@
 package com.spots.controller;
 
 import com.spots.common.input.ReviewBody;
-import com.spots.common.input.UserBody;
 import com.spots.common.output.ApiError;
 import com.spots.common.output.ApiSuccess;
 import com.spots.domain.Spot;
@@ -172,46 +171,6 @@ class SpotsRestController {
             ApiSuccess successResponse = new ApiSuccess("deleteReview", "Review deleted from spot!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidReviewIdException | InvalidSpotIdException | InvalidInputException e) {
-            ApiError error =
-                    new ApiError(
-                            LocalDateTime.now(),
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            request.getRequestURI());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    @GetMapping("/{spotId}/conquer")
-    @Operation(
-            summary = " Gets users that have conquered a spot",
-            description = "Gets a list of spot conquerors by specific spotId in paged manner.")
-    public ResponseEntity<?> getConquerors(
-            @PathVariable Long spotId, @RequestParam Integer pageNum, HttpServletRequest request) {
-        try {
-            return ResponseEntity.ok(spotsService.getConquerorsOfSpot(spotId, pageNum));
-        } catch (SpotConqueredException | InvalidInputException e) {
-            ApiError error =
-                    new ApiError(
-                            LocalDateTime.now(),
-                            HttpStatus.BAD_REQUEST.value(),
-                            e.getMessage(),
-                            request.getRequestURI());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    @PostMapping("/{spotId}/conquer")
-    @Operation(
-            summary = " Adds user who have visited this spot",
-            description = "Adds user entity to the spots conquered list.")
-    public ResponseEntity<?> conquerSpot(
-            @PathVariable Long spotId, @RequestBody UserBody userBody, HttpServletRequest request) {
-        try {
-            spotsService.conquerSpot(spotId, userBody);
-            ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Spot conquered!");
-            return ResponseEntity.ok(successResponse);
-        } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =
                     new ApiError(
                             LocalDateTime.now(),

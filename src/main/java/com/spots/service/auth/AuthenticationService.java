@@ -15,6 +15,7 @@ import com.spots.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -38,10 +39,12 @@ public class AuthenticationService {
     public LoginResponse register(RegisterBody body) {
         var user =
                 User.builder()
+                        .id(userId.get())
                         .username(body.getEmail())
                         .email(body.getEmail())
                         .role(Role.USER)
                         .password(body.getPassword())
+                        .conqueredSpots(new ArrayList<>())
                         .build();
 
         GenericValidator<User> spotValidator = new GenericValidator<>();
@@ -58,6 +61,7 @@ public class AuthenticationService {
                 user.getNextRandomSpotGeneratedTime() == null
                         ? Duration.ZERO
                         : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+        userId.incrementAndGet();
         return LoginResponse.builder()
                 .accessToken(jwtToken)
                 .timeUntilNextRoll(timeUntilNextRoll.getSeconds())

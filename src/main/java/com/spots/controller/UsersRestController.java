@@ -1,11 +1,13 @@
 package com.spots.controller;
 
+import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
 import com.spots.common.output.ApiError;
 import com.spots.common.output.ApiSuccess;
 import com.spots.domain.User;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidInputException;
+import com.spots.service.spots.SpotConqueredException;
 import com.spots.service.user.InvalidUserException;
 import com.spots.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +85,48 @@ class UserRestController {
             ApiSuccess successResponse = new ApiSuccess("deleteUser", "User deleted successfully!");
             return ResponseEntity.ok(successResponse);
         } catch (InvalidUserException | InvalidInputException e) {
+            ApiError error =
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/{email}/conquered")
+    @Operation(
+            summary = "Gets spots that the user has visited",
+            description = "Gets conquered spots.")
+    public ResponseEntity<?> getConqueredSpots(
+            @PathVariable String email, HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(userService.getConqueredSpots(email));
+        } catch (SpotConqueredException | InvalidInputException e) {
+            ApiError error =
+                    new ApiError(
+                            LocalDateTime.now(),
+                            HttpStatus.BAD_REQUEST.value(),
+                            e.getMessage(),
+                            request.getRequestURI());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @PostMapping("/{email}/conquered")
+    @Operation(
+            summary = " Adds user who have visited this spot",
+            description = "Adds user entity to the spots conquered list.")
+    public ResponseEntity<?> conquerSpot(
+            @PathVariable String email,
+            @RequestBody ConquerBody conquerBody,
+            HttpServletRequest request) {
+        try {
+            userService.conquerSpot(email, conquerBody);
+            ApiSuccess successResponse = new ApiSuccess("conquerSpot", "Spot conquered!");
+            return ResponseEntity.ok(successResponse);
+        } catch (SpotConqueredException | InvalidInputException e) {
             ApiError error =
                     new ApiError(
                             LocalDateTime.now(),

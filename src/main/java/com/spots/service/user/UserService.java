@@ -1,10 +1,14 @@
 package com.spots.service.user;
 
 import com.spots.common.GenericValidator;
+import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
+import com.spots.domain.Spot;
 import com.spots.domain.User;
+import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
+import com.spots.service.spots.SpotConqueredException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final SpotsRepository spotsRepository;
     private final GenericValidator<User> userValidator;
     private final PasswordEncoder passwordEncoder;
     public static AtomicLong userId = new AtomicLong(1L);
@@ -67,5 +72,24 @@ public class UserService {
         return userRepository
                 .findUserByEmail(email)
                 .orElseThrow(() -> new InvalidUserException("Invalid email for user!"));
+    }
+
+    public void conquerSpot(String email, ConquerBody conquerBody) {
+        final var user =
+                userRepository
+                        .findUserByEmail(email)
+                        .orElseThrow(() -> new SpotConqueredException("User doesn't exist"));
+        if (user.getConqueredSpots().contains(conquerBody.getSpotId()))
+            throw new SpotConqueredException("Spot is already conquered");
+        user.getConqueredSpots().add(conquerBody.getSpotId());
+        userRepository.save(user);
+    }
+
+    public List<Spot> getConqueredSpots(String email) {
+        final var user =
+                userRepository
+                        .findUserByEmail(email)
+                        .orElseThrow(() -> new SpotConqueredException("User doesn't exist"));
+        return spotsRepository.findAllById(user.getConqueredSpots());
     }
 }

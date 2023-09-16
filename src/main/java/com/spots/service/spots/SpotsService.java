@@ -2,12 +2,10 @@ package com.spots.service.spots;
 
 import com.spots.common.GenericValidator;
 import com.spots.common.input.ReviewBody;
-import com.spots.common.input.UserBody;
 import com.spots.config.InvalidJwtTokenException;
 import com.spots.domain.*;
 import com.spots.dto.SpotDto;
 import com.spots.repository.ReviewRepository;
-import com.spots.repository.SpotConquerorRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.JwtService;
@@ -30,7 +28,6 @@ public class SpotsService {
     private final SpotsRepository spotsRepository;
     private final GenericValidator<Spot> spotValidator;
     private final UserRepository userRepository;
-    private final SpotConquerorRepository spotConquerorRepository;
     private static final Random random = new Random();
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
@@ -82,7 +79,7 @@ public class SpotsService {
     }
 
     public Spot getRandomSpot(String authHeader) {
-        Long randomIndex = random.nextLong(spotsRepository.count());
+        Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
         String jwt = authHeader.substring(7);
         final var user =
                 userRepository
@@ -158,35 +155,6 @@ public class SpotsService {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
         }
         reviewRepository.deleteById(reviewId);
-    }
-
-    public List<SpotConqueror> getConquerorsOfSpot(Long spotId, Integer pageNum) {
-        Pageable pageable = PageRequest.of(pageNum, 5);
-        List<SpotConqueror> conquerors =
-                spotConquerorRepository.findAllBySpotId(spotId, pageable).getContent();
-        if (conquerors.isEmpty()) {
-            throw new InvalidSpotIdException("No one has conquered this spot yet!");
-        }
-        return conquerors;
-    }
-
-    public void conquerSpot(Long spotId, UserBody userBody) {
-        if (userRepository.findById(userBody.getId()).isEmpty()) {
-            throw new SpotConqueredException("User doesn't exist");
-        }
-
-        if (!spotConquerorRepository.findSpotConquerorByUsername(userBody.getUsername()).isEmpty()) {
-            throw new SpotConqueredException("Spot is conquered already");
-        }
-
-        SpotConqueror spotConqueror =
-                SpotConqueror.builder()
-                        .username(userBody.getUsername())
-                        .spotId(spotId)
-                        .profilePicture(userBody.getPicture())
-                        .build();
-
-        spotConquerorRepository.save(spotConqueror);
     }
 
     public void fromDtoToEntity(SpotDto spotDto, Spot spot) {

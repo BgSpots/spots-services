@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,6 +22,7 @@ public class User implements UserDetails {
     private String picture;
     private LocalDateTime nextRandomSpotGeneratedTime;
     private long currentSpotId;
+    private List<Long> conqueredSpots;
 
     @NotBlank(message = "User email can't be blank")
     @Email(message = "Email must be valid!")

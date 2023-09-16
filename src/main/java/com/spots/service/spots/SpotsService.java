@@ -156,7 +156,7 @@ public class SpotsService {
         }
         reviewRepository.deleteById(reviewId);
     }
-  
+
     public void fromDtoToEntity(SpotDto spotDto, Spot spot) {
         spot.setName(spotDto.getName());
         spot.setLocation(spotDto.getLocation());

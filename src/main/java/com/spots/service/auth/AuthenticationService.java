@@ -15,6 +15,7 @@ import com.spots.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,7 @@ public class AuthenticationService {
                         .email(body.getEmail())
                         .role(Role.USER)
                         .password(body.getPassword())
+                        .conqueredSpots(new ArrayList<>())
                         .build();
 
         GenericValidator<User> spotValidator = new GenericValidator<>();

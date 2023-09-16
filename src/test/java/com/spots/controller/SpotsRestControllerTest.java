@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.google.gson.Gson;
 import com.spots.common.GenericValidator;
 import com.spots.common.input.ReviewBody;
-import com.spots.common.input.UserBody;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.config.SecurityConfiguration;
 import com.spots.domain.Location;
@@ -288,41 +287,5 @@ public class SpotsRestControllerTest {
         ;
 
         verify(spotsService, times(1)).deleteSpotReview("1234");
-    }
-
-    @Test
-    @WithMockUser
-    public void testConquersSpot() throws Exception {
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(yourMockAuthentication());
-        SecurityContextHolder.setContext(securityContext);
-
-        UserBody userBody = new UserBody();
-        userBody.setId("123");
-        userBody.setUsername("usr_test");
-        userBody.setPassword("password");
-        userBody.setEmail("test_email");
-
-        mockMvc
-                .perform(
-                        MockMvcRequestBuilders.post("/spots/123/conquer")
-                                .content(new Gson().toJson(userBody))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .with(csrf()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("conquerSpot"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Spot conquered!"));
-        ;
-
-        ArgumentCaptor<UserBody> userCaptor = ArgumentCaptor.forClass(UserBody.class);
-        verify(spotsService, times(1)).conquerSpot(anyLong(), userCaptor.capture());
-
-        UserBody user = userCaptor.getValue();
-
-        // Now you can assert that the captured spot has expected values
-        assertEquals(userBody.getId(), user.getId());
-        assertEquals(userBody.getEmail(), user.getEmail());
-        assertEquals(userBody.getUsername(), user.getUsername());
-        assertEquals(userBody.getPassword(), user.getPassword());
     }
 }

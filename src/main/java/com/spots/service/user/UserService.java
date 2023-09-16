@@ -1,11 +1,8 @@
 package com.spots.service.user;
 
 import com.spots.common.GenericValidator;
-import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
-import com.spots.domain.Spot;
 import com.spots.domain.User;
-import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.spots.SpotConqueredException;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final SpotsRepository spotsRepository;
     private final GenericValidator<User> userValidator;
     private final PasswordEncoder passwordEncoder;
     public static AtomicLong userId = new AtomicLong(1L);

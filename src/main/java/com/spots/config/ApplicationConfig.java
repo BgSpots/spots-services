@@ -1,5 +1,10 @@
 package com.spots.config;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.spots.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -43,5 +48,15 @@ class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        JsonFactory jsonFactory =
+                JsonFactory.builder()
+                        .streamReadConstraints(
+                                StreamReadConstraints.builder().maxStringLength(10_000_000).build())
+                        .build();
+        return JsonMapper.builder(jsonFactory).build().registerModule(new JavaTimeModule());
     }
 }

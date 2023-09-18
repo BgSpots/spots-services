@@ -2,9 +2,9 @@ package com.spots.service.spots;
 
 import com.spots.common.GenericValidator;
 import com.spots.common.input.ReviewBody;
+import com.spots.common.input.SpotDto;
 import com.spots.config.InvalidJwtTokenException;
 import com.spots.domain.*;
-import com.spots.dto.SpotDto;
 import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
@@ -26,7 +26,8 @@ public class SpotsService {
     public static final String SPOT_WITH_THIS_ID_DOESN_T_EXISTS = "Spot with this id doesn't exists!";
     public static final String USER_WITH_THIS_ID_DOESN_T_EXISTS = "User with this id doesn't exists!";
     private final SpotsRepository spotsRepository;
-    private final GenericValidator<Spot> spotValidator;
+    private final GenericValidator<Spot> spotValidator = new GenericValidator<>();
+    private final GenericValidator<Review> reviewValidator = new GenericValidator<>();
     private final UserRepository userRepository;
     private static final Random random = new Random();
     private final JwtService jwtService;
@@ -35,11 +36,16 @@ public class SpotsService {
     public static AtomicLong reviewId = new AtomicLong(1L);
 
     public void createSpot(SpotDto spotDto) {
+        Location location =
+                Location.builder()
+                        .latitude(spotDto.getLocation().getLatitude())
+                        .longitude(spotDto.getLocation().getLongitude())
+                        .build();
         Spot spot =
                 Spot.builder()
                         .id(spotId.get())
                         .name(spotDto.getName())
-                        .location(spotDto.getLocation())
+                        .location(location)
                         .overallRating(1)
                         .description(spotDto.getDescription())
                         .imageBase64(spotDto.getImageBase64())
@@ -57,7 +63,7 @@ public class SpotsService {
                 spotsRepository
                         .findById(spotDto.getId())
                         .orElseThrow(() -> new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS));
-        fromDtoToEntity(spotDto, spot);
+        spot.setDescription(spotDto.getDescription());
         spotsRepository.save(spot);
     }
 
@@ -133,7 +139,6 @@ public class SpotsService {
                         .build();
         review.setUserInfo(reviewerInfo);
 
-        GenericValidator<Review> reviewValidator = new GenericValidator<>();
         reviewValidator.validate(review);
         Spot spot =
                 spotsRepository
@@ -155,12 +160,5 @@ public class SpotsService {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
         }
         reviewRepository.deleteById(reviewId);
-    }
-
-    public void fromDtoToEntity(SpotDto spotDto, Spot spot) {
-        spot.setName(spotDto.getName());
-        spot.setLocation(spotDto.getLocation());
-        spot.setDescription(spotDto.getDescription());
-        spotValidator.validate(spot);
     }
 }

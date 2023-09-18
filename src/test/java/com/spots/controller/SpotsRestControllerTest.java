@@ -13,13 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.google.gson.Gson;
 import com.spots.common.GenericValidator;
+import com.spots.common.input.LocationBody;
 import com.spots.common.input.ReviewBody;
+import com.spots.common.input.SpotDto;
 import com.spots.config.JwtAuthenticationFilter;
 import com.spots.config.SecurityConfiguration;
-import com.spots.domain.Location;
 import com.spots.domain.Review;
 import com.spots.domain.Spot;
-import com.spots.dto.SpotDto;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.AuthenticationService;
@@ -135,7 +135,7 @@ public class SpotsRestControllerTest {
         spot.setName("test123");
         spot.setDescription("description123");
 
-        Location location = Location.builder().latitude(2).longitude(3).build();
+        LocationBody location = LocationBody.builder().latitude(2).longitude(3).build();
         spot.setLocation(location);
 
         mockMvc
@@ -167,7 +167,7 @@ public class SpotsRestControllerTest {
         spot.setName("test123");
         spot.setDescription("description123");
 
-        Location location = Location.builder().latitude(2).longitude(3).build();
+        LocationBody location = LocationBody.builder().latitude(2).longitude(3).build();
         spot.setLocation(location);
 
         mockMvc

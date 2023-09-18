@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.when;
 
+import com.spots.common.GenericValidator;
 import com.spots.common.input.LoginBody;
 import com.spots.common.input.RegisterBody;
 import com.spots.config.JwtAuthenticationFilter;
@@ -28,6 +29,8 @@ class AuthenticationServiceTest {
     @Mock private JwtService jwtService;
     @Mock private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Mock private AuthenticationManager authenticationManager;
+    @Mock private GenericValidator<LoginBody> loginBodyGenericValidator;
+    @Mock private GenericValidator<RegisterBody> registerBodyGenericValidator;
 
     @MockBean private RedisTemplate<String, String> redis;
     @MockBean private ValueOperations valueOperations;

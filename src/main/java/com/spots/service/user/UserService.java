@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final SpotsRepository spotsRepository;
-    private final GenericValidator<User> userValidator;
+    private final GenericValidator<User> userValidator = new GenericValidator<>();
     private final PasswordEncoder passwordEncoder;
     public static AtomicLong userId = new AtomicLong(1L);
 
@@ -42,23 +42,17 @@ public class UserService {
     }
 
     public void updateUser(UserBody userBody) {
-        if (userRepository.existsUserByEmail(userBody.getEmail())) {
-            throw new EmailTakenException("User with that email already exists");
-        }
-
         User user =
                 userRepository
-                        .findById(userBody.getId())
+                        .findUserByEmail(userBody.getEmail())
                         .orElseThrow(() -> new InvalidUserException("User does not exist!"));
-        user.setEmail(userBody.getEmail());
-        user.setUsername(userBody.getUsername());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPicture(userBody.getPicture());
         userValidator.validate(user);
         userRepository.save(user);
     }
 
     public void deleteUser(String userId) {
-        if (userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new InvalidUserException("User with this id doesn't exist");
         }
         userRepository.deleteById(userId);

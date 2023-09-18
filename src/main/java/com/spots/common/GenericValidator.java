@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class GenericValidator<T> {
     private final Logger logger = LoggerFactory.getLogger(GenericValidator.class);
     private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

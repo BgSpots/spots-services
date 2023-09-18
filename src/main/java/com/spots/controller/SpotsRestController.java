@@ -1,10 +1,10 @@
 package com.spots.controller;
 
 import com.spots.common.input.ReviewBody;
+import com.spots.common.input.SpotDto;
 import com.spots.common.output.ApiError;
 import com.spots.common.output.ApiSuccess;
 import com.spots.domain.Spot;
-import com.spots.dto.SpotDto;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.spots.*;
 import io.swagger.v3.oas.annotations.Operation;

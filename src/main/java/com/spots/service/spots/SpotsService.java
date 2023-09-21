@@ -155,7 +155,7 @@ public class SpotsService {
         reviewId.incrementAndGet();
     }
 
-    public void deleteSpotReview(String reviewId) {
+    public void deleteSpotReview(Long reviewId) {
         if (!reviewRepository.existsById(reviewId)) {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
         }

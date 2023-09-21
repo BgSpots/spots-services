@@ -51,7 +51,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteUser(String userId) {
+    public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new InvalidUserException("User with this id doesn't exist");
         }

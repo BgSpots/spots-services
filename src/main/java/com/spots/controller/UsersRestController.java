@@ -79,7 +79,7 @@ class UserRestController {
 
     @DeleteMapping("/{userId}")
     @Operation(summary = "Deletes user", description = "Deletes specific user by id.")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId, HttpServletRequest request) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId, HttpServletRequest request) {
         try {
             userService.deleteUser(userId);
             ApiSuccess successResponse = new ApiSuccess("deleteUser", "User deleted successfully!");

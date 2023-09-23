@@ -4,6 +4,7 @@ import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
 import com.spots.common.output.ApiError;
 import com.spots.common.output.ApiSuccess;
+import com.spots.common.output.UserDto;
 import com.spots.domain.User;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidInputException;
@@ -37,7 +38,7 @@ class UserRestController {
     @GetMapping("/{email}")
     @Operation(summary = "Get user", description = "Returns a list of user entity.")
     public ResponseEntity<?> getUser(@PathVariable String email, HttpServletRequest request) {
-        User user = userService.getUser(email);
+        UserDto user = userService.getUser(email);
         return ResponseEntity.ok(user);
     }
 

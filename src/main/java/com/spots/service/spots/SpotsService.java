@@ -5,6 +5,7 @@ import com.spots.common.input.ReviewBody;
 import com.spots.common.input.SpotDto;
 import com.spots.config.InvalidJwtTokenException;
 import com.spots.domain.*;
+import com.spots.repository.PaymentRepository;
 import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
@@ -32,6 +33,7 @@ public class SpotsService {
     private static final Random random = new Random();
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
+    private final PaymentRepository paymentRepository;
     public static AtomicLong spotId = new AtomicLong(1L);
     public static AtomicLong reviewId = new AtomicLong(1L);
 
@@ -85,21 +87,33 @@ public class SpotsService {
     }
 
     public Spot getRandomSpot(String authHeader) {
+        if (spotsRepository.count() == 0) throw new InvalidSpotIdException("No spots available yet");
         Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
         String jwt = authHeader.substring(7);
         final var user =
                 userRepository
                         .findUserByEmail(jwtService.extractEmail(jwt))
                         .orElseThrow(() -> new InvalidJwtTokenException("Invalid jwt token"));
-        if (user.getNextRandomSpotGeneratedTime() != null
-                && LocalDateTime.now().isBefore(user.getNextRandomSpotGeneratedTime())) {
-            throw new RandomSpotIsNotAvailableYet("Random spot is not available yet!");
+        final var payment = paymentRepository.findPaymentByUserId(user.getId()).orElse(null);
+        final var isPayed =
+                payment != null && ("paid".equals(payment.getStatus()) || payment.isAdWatched());
+        if (!isPayed) {
+            if (user.getNextRandomSpotGeneratedTime() != null
+                    && LocalDateTime.now().isBefore(user.getNextRandomSpotGeneratedTime())) {
+                throw new RandomSpotIsNotAvailableYet("Random spot is not available yet!");
+            }
+        } else {
+            if (payment.isUsed()) throw new SpotRerollAlreadyUsed("Spot reroll already used!");
         }
         while (true) {
             final var randomSpot = spotsRepository.findById(randomIndex);
             if (randomSpot.isPresent()) {
                 user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
                 user.setCurrentSpotId(randomIndex);
+                if (isPayed) {
+                    payment.setUsed(true);
+                    paymentRepository.save(payment);
+                }
                 userRepository.save(user);
                 return randomSpot.get();
             }

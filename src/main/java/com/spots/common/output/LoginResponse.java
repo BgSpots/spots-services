@@ -14,4 +14,5 @@ public class LoginResponse {
     private long timeUntilNextRoll;
     private long currentSpotId;
     private String picture;
+    private long id;
 }

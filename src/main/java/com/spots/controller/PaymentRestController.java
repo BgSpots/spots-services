@@ -6,7 +6,6 @@ import com.spots.service.payment.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -27,19 +26,19 @@ class PaymentRestController {
     @PostMapping("/initiate")
     @Operation(summary = "Initiate payment.", description = "Initiate payment.")
     public ResponseEntity<?> initiatePayment(
-            @RequestBody InitiatePaymentBody initiatePaymentBody, HttpServletRequest request)
-            throws IOException {
+            @RequestBody InitiatePaymentBody initiatePaymentBody, HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         var jwt = authHeader.substring(7);
-        final var paymentId = paymentService.initiatePayment(initiatePaymentBody.getAmount(), jwt);
+        final var paymentId =
+                paymentService.initiatePayment(
+                        initiatePaymentBody.getAmount(), initiatePaymentBody.isAd(), jwt);
         return ResponseEntity.ok(paymentId);
     }
 
-    @GetMapping("/{paymentId}")
+    @GetMapping("/{userId}")
     @Operation(summary = "Get payment by id", description = "Returns a payment.")
-    public ResponseEntity<?> getPayment(@PathVariable Long paymentId, HttpServletRequest request)
-            throws IOException {
-        Payment payment = paymentService.getPayment(paymentId);
+    public ResponseEntity<?> getPayment(@PathVariable Long userId, HttpServletRequest request) {
+        Payment payment = paymentService.getPayment(userId);
         return ResponseEntity.ok(payment);
     }
 }

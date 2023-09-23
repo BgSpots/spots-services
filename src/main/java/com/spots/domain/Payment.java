@@ -15,4 +15,6 @@ public class Payment {
     private int sats;
     private String lightningInvoice;
     private String uri;
+    private boolean used;
+    private boolean isAdWatched;
 }

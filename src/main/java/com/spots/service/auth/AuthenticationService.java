@@ -67,6 +67,7 @@ public class AuthenticationService {
                 .timeUntilNextRoll(timeUntilNextRoll.getSeconds())
                 .currentSpotId(user.getCurrentSpotId())
                 .picture(user.getPicture())
+                .id(user.getId())
                 .build();
     }
 
@@ -92,6 +93,7 @@ public class AuthenticationService {
                 .timeUntilNextRoll(timeUntilNextRoll.getSeconds())
                 .currentSpotId(user.getCurrentSpotId())
                 .picture(user.getPicture())
+                .id(user.getId())
                 .build();
     }
 

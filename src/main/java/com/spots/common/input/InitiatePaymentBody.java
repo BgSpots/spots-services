@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InitiatePaymentBody {
     private int amount;
+    private boolean isAd;
 }

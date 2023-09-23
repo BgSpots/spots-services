@@ -3,9 +3,7 @@ package com.spots.service.payment;
 import com.spots.domain.Payment;
 import com.spots.repository.PaymentRepository;
 import com.spots.service.auth.JwtService;
-import com.spots.service.spots.InvalidPaymentIdException;
 import com.spots.service.user.UserService;
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,42 +21,67 @@ public class PaymentService {
     private final String urlv2Api = "https://api.opennode.com/v2/charge/";
     private final String apiKey = "e92064ab-0799-467c-8876-25bb1a393422";
 
-    public long initiatePayment(int sats, String jwt) throws IOException {
+    public long initiatePayment(int sats, boolean isAd, String jwt) {
         final var user = userService.getUser(jwtService.extractEmail(jwt));
-        PaymentRequest paymentRequest = new PaymentRequest(1);
-        WebClient webClient = WebClient.create();
-        final var paymentCharge =
-                webClient
-                        .post()
-                        .uri(url)
-                        .body(BodyInserters.fromValue(paymentRequest))
-                        .header("Content-Type", "application/json")
-                        .header("accept", "application/json")
-                        .header("Authorization", apiKey)
-                        .retrieve()
-                        .bodyToMono(PaymentCharge.class)
-                        .block();
+        if (isAd) {
+            final var paymentOptional = paymentRepository.findPaymentByUserId(user.getId());
+            if (paymentOptional.isPresent()) {
+                if (!paymentOptional.get().isUsed())
+                    throw new InvalidPaymentIdException("This user already initiated payment!");
+                else
+                    throw new InvalidPaymentIdException(
+                            "Payment is already finalised. New random spot is generated already");
+            }
+            final var payment =
+                    Payment.builder().id(paymentId.get()).userId(user.getId()).isAdWatched(true).build();
+            paymentRepository.insert(payment);
+            paymentId.incrementAndGet();
+            return payment.getId();
 
-        final var payment =
-                Payment.builder()
-                        .id(paymentId.get())
-                        .opennodeId(paymentCharge.getData().getId())
-                        .userId(user.getId())
-                        .status(paymentCharge.getData().getStatus())
-                        .sats(sats)
-                        .uri(paymentCharge.getData().getUri())
-                        .lightningInvoice(paymentCharge.getData().getLightning_invoice().getPayreq())
-                        .build();
-        paymentRepository.insert(payment);
-        paymentId.incrementAndGet();
-        return payment.getId();
+        } else {
+            final var paymentOptional = paymentRepository.findPaymentByUserId(user.getId());
+            if (paymentOptional.isPresent()) {
+                if (!paymentOptional.get().isUsed())
+                    throw new InvalidPaymentIdException("This user already initiated payment!");
+                else
+                    throw new InvalidPaymentIdException(
+                            "Payment is already finalised. New random spot is generated already");
+            }
+            PaymentRequest paymentRequest = new PaymentRequest(1);
+            WebClient webClient = WebClient.create();
+            final var paymentCharge =
+                    webClient
+                            .post()
+                            .uri(url)
+                            .body(BodyInserters.fromValue(paymentRequest))
+                            .header("Content-Type", "application/json")
+                            .header("accept", "application/json")
+                            .header("Authorization", apiKey)
+                            .retrieve()
+                            .bodyToMono(PaymentCharge.class)
+                            .block();
+
+            final var payment =
+                    Payment.builder()
+                            .id(paymentId.get())
+                            .opennodeId(paymentCharge.getData().getId())
+                            .userId(user.getId())
+                            .status(paymentCharge.getData().getStatus())
+                            .sats(sats)
+                            .uri(paymentCharge.getData().getUri())
+                            .lightningInvoice(paymentCharge.getData().getLightning_invoice().getPayreq())
+                            .build();
+            paymentRepository.insert(payment);
+            paymentId.incrementAndGet();
+            return payment.getId();
+        }
     }
 
-    public Payment getPayment(Long paymentId) throws IOException {
+    public Payment getPayment(Long userId) {
         final var payment =
                 paymentRepository
-                        .findById(paymentId)
-                        .orElseThrow(() -> new InvalidPaymentIdException("Invalid payment id"));
+                        .findPaymentByUserId(userId)
+                        .orElseThrow(() -> new InvalidPaymentIdException("Invalid user id"));
 
         WebClient webClient = WebClient.create();
         final var paymentData =
@@ -72,6 +95,7 @@ public class PaymentService {
                         .bodyToMono(PaymentData.class)
                         .block();
         payment.setStatus(paymentData.getData().getStatus());
+        paymentRepository.save(payment);
         return payment;
     }
 }

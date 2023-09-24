@@ -278,7 +278,7 @@ public class SpotsRestControllerTest {
 
         mockMvc
                 .perform(
-                        MockMvcRequestBuilders.delete("/spots/reviews?reviewId=1234")
+                        MockMvcRequestBuilders.delete("/spots/reviews?reviewId=1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -286,6 +286,6 @@ public class SpotsRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Review deleted from spot!"));
         ;
 
-        verify(spotsService, times(1)).deleteSpotReview("1234");
+        verify(spotsService, times(1)).deleteSpotReview(1L);
     }
 }

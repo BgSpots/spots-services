@@ -3,12 +3,15 @@ package com.spots.service.user;
 import com.spots.common.GenericValidator;
 import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
+import com.spots.common.output.UserDto;
 import com.spots.domain.Spot;
 import com.spots.domain.User;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.spots.SpotConqueredException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +54,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteUser(String userId) {
+    public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new InvalidUserException("User with this id doesn't exist");
         }
@@ -62,10 +65,19 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User getUser(String email) {
-        return userRepository
-                .findUserByEmail(email)
-                .orElseThrow(() -> new InvalidUserException("Invalid email for user!"));
+    public UserDto getUser(String email) {
+        final var user =
+                userRepository
+                        .findUserByEmail(email)
+                        .orElseThrow(() -> new InvalidUserException("Invalid email for user!"));
+
+        final var timeUntilNextRoll =
+                user.getNextRandomSpotGeneratedTime() == null
+                        ? Duration.ZERO
+                        : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+        final var userDto = UserDto.fromUser(user);
+        userDto.setTimeUntilNextRoll(timeUntilNextRoll.getSeconds());
+        return userDto;
     }
 
     public void conquerSpot(String email, ConquerBody conquerBody) {

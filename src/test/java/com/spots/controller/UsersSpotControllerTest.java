@@ -209,13 +209,13 @@ public class UsersSpotControllerTest {
 
         mockMvc
                 .perform(
-                        MockMvcRequestBuilders.delete("/users/123")
+                        MockMvcRequestBuilders.delete("/users/1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.action").value("deleteUser"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("User deleted successfully!"));
 
-        verify(userService, times(1)).deleteUser("123");
+        verify(userService, times(1)).deleteUser(1L);
     }
 }

@@ -20,11 +20,8 @@ public class User implements UserDetails {
     private LocalDateTime nextRandomSpotGeneratedTime;
     private long currentSpotId;
     private List<Long> conqueredSpots;
-
     private String email;
-
     private String password;
-
     private boolean emailVerified;
 
     @Override

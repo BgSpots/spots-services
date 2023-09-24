@@ -165,7 +165,7 @@ class SpotsRestController {
             summary = "Deletes review from spot",
             description = "Deletes review from specific spot using spots id and the review id.")
     public ResponseEntity<?> deleteSpotReview(
-            @RequestParam String reviewId, HttpServletRequest request) {
+            @RequestParam Long reviewId, HttpServletRequest request) {
         try {
             spotsService.deleteSpotReview(reviewId);
             ApiSuccess successResponse = new ApiSuccess("deleteReview", "Review deleted from spot!");

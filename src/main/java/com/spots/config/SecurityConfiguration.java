@@ -21,6 +21,7 @@ public class SecurityConfiguration {
 
     private static final String[] ALLOWED_PATHS = {
         "/auth/login/**",
+        "/auth/verify/**",
         "/auth/register/**",
         "/swagger-ui/index.html",
         "/swagger-ui/**",

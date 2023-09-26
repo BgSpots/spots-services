@@ -11,14 +11,25 @@ import com.spots.common.output.GoogleUserDTO;
 import com.spots.common.output.LoginResponse;
 import com.spots.domain.Role;
 import com.spots.domain.User;
+import com.spots.domain.VerificationCode;
 import com.spots.repository.UserRepository;
+import com.spots.repository.VerificationCodeRepository;
+import com.spots.service.user.InvalidUserException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,21 +39,23 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final GenericValidator<LoginBody> loginValidator = new GenericValidator<>();
     private final GenericValidator<RegisterBody> registerValidator = new GenericValidator<>();
     private final RedisTemplate<String, String> redis;
+    private final JavaMailSender mailSender;
+    private final AtomicLong codeId = new AtomicLong(1L);
 
-    public LoginResponse register(RegisterBody body) {
+    public void register(RegisterBody body) throws MessagingException {
         registerValidator.validate(body);
         var user =
                 User.builder()
                         .id(userId.get())
-                        .username(body.getEmail())
+                        .username(extractUsername(body.getEmail()))
                         .email(body.getEmail())
                         .role(Role.USER)
                         .password(body.getPassword())
@@ -55,20 +68,9 @@ public class AuthenticationService {
         if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
-        var jwtToken = jwtService.generateToken(user);
+        sendVerificationEmail(user.getEmail());
         userRepository.insert(user);
-        final var timeUntilNextRoll =
-                user.getNextRandomSpotGeneratedTime() == null
-                        ? Duration.ZERO
-                        : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
         userId.incrementAndGet();
-        return LoginResponse.builder()
-                .accessToken(jwtToken)
-                .timeUntilNextRoll(timeUntilNextRoll.getSeconds())
-                .currentSpotId(user.getCurrentSpotId())
-                .picture(user.getPicture())
-                .id(user.getId())
-                .build();
     }
 
     public LoginResponse login(LoginBody body) {
@@ -81,6 +83,7 @@ public class AuthenticationService {
                 || !passwordEncoder.matches(body.getPassword(), optionalUser.get().getPassword()))
             throw new InvalidLoginCredenials("User with that email and password does not exist!");
         var user = optionalUser.get();
+        if (!user.isEmailVerified()) throw new EmailNotVerifiedException("Email is not verified");
         user.setUsername(body.getEmail());
         var jwtToken = jwtService.generateToken(user);
         // return jwt token to client
@@ -116,7 +119,7 @@ public class AuthenticationService {
                             .role(Role.USER)
                             .picture(googleUserDTO.getPicture())
                             .build();
-            userRepository.save(user);
+            userRepository.insert(user);
             googleUserDTO.setJwtToken(jwtService.generateToken(user));
             googleUserDTO.setTimeUntilNextRoll(
                     Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
@@ -147,7 +150,7 @@ public class AuthenticationService {
                             .email(facebookUserDTO.getEmail())
                             .picture(facebookUserDTO.getPicture().getData().getUrl())
                             .build();
-            userRepository.save(user);
+            userRepository.insert(user);
             facebookUserDTO.setJwtToken(jwtService.generateToken(user));
             facebookUserDTO.setTimeUntilNextRoll(
                     Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
@@ -164,5 +167,72 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         var jwt = authHeader.substring(7);
         redis.opsForValue().set(request.getRemoteAddr(), jwt);
+    }
+
+    public void verifyEmail(String code) {
+        final var verificationCode =
+                verificationCodeRepository
+                        .findVerificationCodeByCode(code)
+                        .orElseThrow(() -> new InvalidVerificationCodeException("Invalid verification code!"));
+        final var user =
+                userRepository
+                        .findUserByEmail(verificationCode.getEmail())
+                        .orElseThrow(
+                                () -> new InvalidUserException("Verification code does not match any user"));
+        user.setEmailVerified(true);
+        userRepository.save(user);
+    }
+
+    public void sendVerificationEmail(String userEmail) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(userEmail);
+        helper.setFrom("bgspots@gmail.com");
+        helper.setSubject("Spots Verification Code");
+
+        String verificationCode = generateRandomCode(userEmail); // Generate code based on email
+        String emailContent = "Your verification code is: <strong>" + verificationCode + "</strong>";
+
+        helper.setText(emailContent, true);
+
+        mailSender.send(message);
+        final var code =
+                VerificationCode.builder()
+                        .code(verificationCode)
+                        .email(userEmail)
+                        .id(codeId.getAndIncrement())
+                        .build();
+        verificationCodeRepository.insert(code);
+    }
+
+    private String generateRandomCode(String userEmail) {
+        // Use the user's email as part of the seed for generating the code
+        String seed = userEmail + System.currentTimeMillis();
+
+        // Generate the code using the seed
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder code = new StringBuilder();
+        Random random = new Random(seed.hashCode());
+
+        for (int i = 0; i < 6; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return code.toString();
+    }
+
+    private static String extractUsername(String emailAddress) {
+        String regexPattern = "^(.+)@.+$";
+
+        Pattern pattern = Pattern.compile(regexPattern);
+
+        Matcher matcher = pattern.matcher(emailAddress);
+
+        if (matcher.find()) {
+            return matcher.group(1); // Group 1 contains the first part (username)
+        } else {
+            return null; // Return null if no match is found
+        }
     }
 }

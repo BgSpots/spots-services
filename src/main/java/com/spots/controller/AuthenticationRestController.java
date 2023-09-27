@@ -3,12 +3,14 @@ package com.spots.controller;
 import com.spots.common.input.LoginBody;
 import com.spots.common.input.RegisterBody;
 import com.spots.common.output.ApiError;
+import com.spots.common.output.ApiSuccess;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.auth.InvalidAccessTokenException;
 import com.spots.service.auth.InvalidInputException;
 import com.spots.service.auth.InvalidLoginCredenials;
 import com.spots.service.auth.UserAlreadyExistsException;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +35,12 @@ public class AuthenticationRestController {
       * @return
       */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterBody body, HttpServletRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterBody body, HttpServletRequest request)
+            throws MessagingException {
         try {
-            return ResponseEntity.ok(
-                    authService.register(body.toBuilder().ip(request.getRemoteAddr()).build()));
+            authService.register(body.toBuilder().ip(request.getRemoteAddr()).build());
+            ApiSuccess successResponse = new ApiSuccess("register", "Registered successfully!");
+            return ResponseEntity.ok(successResponse);
         } catch (EmailTakenException | InvalidInputException e) {
             ApiError error =
                     new ApiError(
@@ -81,7 +85,8 @@ public class AuthenticationRestController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         authService.logout(request);
-        return ResponseEntity.ok(null);
+        ApiSuccess successResponse = new ApiSuccess("logout", "Logged out successfully!");
+        return ResponseEntity.ok(successResponse);
     }
 
     @PostMapping("/login/google")
@@ -114,5 +119,12 @@ public class AuthenticationRestController {
                             request.getRequestURI());
             return ResponseEntity.badRequest().body(error);
         }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyUserEmail(@RequestBody String code, HttpServletRequest request) {
+        authService.verifyEmail(code);
+        ApiSuccess successResponse = new ApiSuccess("verify email", "Verified email successfully!");
+        return ResponseEntity.ok(successResponse);
     }
 }

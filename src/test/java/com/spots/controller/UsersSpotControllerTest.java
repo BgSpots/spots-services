@@ -12,6 +12,7 @@ import com.spots.config.SecurityConfiguration;
 import com.spots.domain.Role;
 import com.spots.domain.User;
 import com.spots.repository.UserRepository;
+import com.spots.repository.VerificationCodeRepository;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.JwtService;
 import com.spots.service.user.UserService;
@@ -32,6 +33,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,7 +51,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 public class UsersSpotControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private UserService userService;
-
+    @MockBean private JavaMailSender javaMailSender;
+    @MockBean private VerificationCodeRepository verificationCodeRepository;
     @MockBean private UserRepository userRepository;
     @SpyBean private AuthenticationService authenticationService;
     @SpyBean private BCryptPasswordEncoder passwordEncoder;
@@ -58,9 +61,7 @@ public class UsersSpotControllerTest {
     @MockBean private RedisTemplate<String, String> redis;
     @MockBean private ValueOperations valueOperations;
     @MockBean private JwtService jwtService;
-
     @MockBean private GenericValidator validator;
-
     @MockBean private MongoTemplate mongoTemplate;
 
     @BeforeEach

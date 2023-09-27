@@ -8,6 +8,19 @@ server:
   servlet:
     context-path: /api
 spring:
+  mail:
+    host:
+      smtp.gmail.com
+    port: 587
+    username: ivanivanov.ii726@gmail.com
+    password: uqrn mrsw erke wbhn
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   servlet:
     multipart:
       max-file-size: 10MB

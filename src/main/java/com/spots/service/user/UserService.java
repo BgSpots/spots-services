@@ -9,14 +9,15 @@ import com.spots.domain.User;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
+import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.spots.SpotConqueredException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,12 +26,13 @@ public class UserService {
     private final SpotsRepository spotsRepository;
     private final GenericValidator<User> userValidator = new GenericValidator<>();
     private final PasswordEncoder passwordEncoder;
-    public static AtomicLong userId = new AtomicLong(1L);
+    private final SequenceGeneratorService sequenceGeneratorService;
 
+    @Transactional
     public void createUser(UserBody userBody) {
         User user =
                 User.builder()
-                        .id(userId.get())
+                        .id(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
                         .username(userBody.getUsername())
                         .email(userBody.getEmail())
                         .password(userBody.getPassword())
@@ -41,9 +43,9 @@ public class UserService {
         userValidator.validate(user);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.insert(user);
-        userId.incrementAndGet();
     }
 
+    @Transactional
     public void updateUser(UserBody userBody) {
         User user =
                 userRepository
@@ -54,6 +56,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new InvalidUserException("User with this id doesn't exist");
@@ -65,6 +68,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    @Transactional
     public UserDto getUser(String email) {
         final var user =
                 userRepository
@@ -80,6 +84,7 @@ public class UserService {
         return userDto;
     }
 
+    @Transactional
     public void conquerSpot(String email, ConquerBody conquerBody) {
         final var user =
                 userRepository

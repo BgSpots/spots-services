@@ -10,15 +10,16 @@ import com.spots.repository.ReviewRepository;
 import com.spots.repository.SpotsRepository;
 import com.spots.repository.UserRepository;
 import com.spots.service.auth.JwtService;
+import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.user.InvalidUserException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +35,9 @@ public class SpotsService {
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
     private final PaymentRepository paymentRepository;
-    public static AtomicLong spotId = new AtomicLong(1L);
-    public static AtomicLong reviewId = new AtomicLong(1L);
+    private final SequenceGeneratorService sequenceGeneratorService;
 
+    @Transactional
     public void createSpot(SpotDto spotDto) {
         Location location =
                 Location.builder()
@@ -45,7 +46,7 @@ public class SpotsService {
                         .build();
         Spot spot =
                 Spot.builder()
-                        .id(spotId.get())
+                        .id(sequenceGeneratorService.generateSequence(Spot.SEQUENCE_NAME))
                         .name(spotDto.getName())
                         .location(location)
                         .overallRating(1)
@@ -57,9 +58,9 @@ public class SpotsService {
             throw new InvalidSpotNameException("Spot with this name already exists!");
         }
         spotsRepository.insert(spot);
-        spotId.incrementAndGet();
     }
 
+    @Transactional
     public void updateSpot(SpotDto spotDto) {
         Spot spot =
                 spotsRepository
@@ -69,6 +70,7 @@ public class SpotsService {
         spotsRepository.save(spot);
     }
 
+    @Transactional
     public void deleteSpot(Long spotId) {
         if (!spotsRepository.existsSpotById(spotId)) {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);
@@ -76,16 +78,19 @@ public class SpotsService {
         spotsRepository.deleteById(spotId);
     }
 
+    @Transactional
     public List<Spot> getSpots() {
         return spotsRepository.findAll();
     }
 
+    @Transactional
     public Spot getSpot(Long id) {
         return spotsRepository
                 .findById(id)
                 .orElseThrow(() -> new InvalidSpotIdException("Invalid spot id"));
     }
 
+    @Transactional
     public Spot getRandomSpot(String authHeader) {
         if (spotsRepository.count() == 0) throw new InvalidSpotIdException("No spots available yet");
         Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
@@ -132,6 +137,7 @@ public class SpotsService {
         return reviews;
     }
 
+    @Transactional
     public void addSpotReview(Long spotId, ReviewBody reviewBody, String authHeader) {
         final String jwt = authHeader.substring(7);
         User user =
@@ -140,7 +146,7 @@ public class SpotsService {
                         .orElseThrow(() -> new InvalidUserException(USER_WITH_THIS_ID_DOESN_T_EXISTS));
         Review review =
                 Review.builder()
-                        .id(reviewId.get())
+                        .id(sequenceGeneratorService.generateSequence(Review.SEQUENCE_NAME))
                         .spotId(spotId)
                         .comment(reviewBody.getComment())
                         .rating(reviewBody.getRating())
@@ -166,9 +172,9 @@ public class SpotsService {
 
         reviewRepository.insert(review);
         spotsRepository.save(spot);
-        reviewId.incrementAndGet();
     }
 
+    @Transactional
     public void deleteSpotReview(Long reviewId) {
         if (!reviewRepository.existsById(reviewId)) {
             throw new InvalidSpotIdException(SPOT_WITH_THIS_ID_DOESN_T_EXISTS);

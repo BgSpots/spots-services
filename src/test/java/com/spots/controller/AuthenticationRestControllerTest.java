@@ -15,6 +15,7 @@ import com.spots.repository.UserRepository;
 import com.spots.repository.VerificationCodeRepository;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.JwtService;
+import com.spots.service.common.SequenceGeneratorService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ class AuthenticationRestControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockBean private UserRepository userRepository;
+    @MockBean private SequenceGeneratorService sequenceGeneratorService;
     @SpyBean private AuthenticationService authenticationService;
     @MockBean private JavaMailSender javaMailSender;
     @MockBean private VerificationCodeRepository verificationCodeRepository;

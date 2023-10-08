@@ -1,7 +1,5 @@
 package com.spots.service.auth;
 
-import static com.spots.service.user.UserService.userId;
-
 import com.mongodb.DuplicateKeyException;
 import com.spots.common.GenericValidator;
 import com.spots.common.input.LoginBody;
@@ -14,6 +12,7 @@ import com.spots.domain.User;
 import com.spots.domain.VerificationCode;
 import com.spots.repository.UserRepository;
 import com.spots.repository.VerificationCodeRepository;
+import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.user.InvalidUserException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,7 +21,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +32,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -41,6 +40,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final VerificationCodeRepository verificationCodeRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -48,13 +48,13 @@ public class AuthenticationService {
     private final GenericValidator<RegisterBody> registerValidator = new GenericValidator<>();
     private final RedisTemplate<String, String> redis;
     private final JavaMailSender mailSender;
-    private final AtomicLong codeId = new AtomicLong(1L);
 
+    @Transactional
     public void register(RegisterBody body) throws MessagingException {
         registerValidator.validate(body);
         var user =
                 User.builder()
-                        .id(userId.get())
+                        .id(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
                         .username(extractUsername(body.getEmail()))
                         .email(body.getEmail())
                         .role(Role.USER)
@@ -70,9 +70,9 @@ public class AuthenticationService {
         }
         sendVerificationEmail(user.getEmail());
         userRepository.insert(user);
-        userId.incrementAndGet();
     }
 
+    @Transactional
     public LoginResponse login(LoginBody body) {
         loginValidator.validate(body);
         authenticationManager.authenticate(
@@ -100,6 +100,7 @@ public class AuthenticationService {
                 .build();
     }
 
+    @Transactional
     public GoogleUserDTO loginWithGoogle(String accessToken) {
         WebClient webClient = WebClient.create();
         try {
@@ -113,17 +114,29 @@ public class AuthenticationService {
                             .block();
             final var user =
                     User.builder()
-                            .id(userId.get())
-                            .username(googleUserDTO.getEmail())
+                            .id(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                            .username(extractUsername(googleUserDTO.getEmail()))
                             .email(googleUserDTO.getEmail())
                             .role(Role.USER)
                             .picture(googleUserDTO.getPicture())
+                            .emailVerified(true)
+                            .conqueredSpots(new ArrayList<>())
                             .build();
-            userRepository.insert(user);
             googleUserDTO.setJwtToken(jwtService.generateToken(user));
             googleUserDTO.setTimeUntilNextRoll(
                     Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
-            userId.incrementAndGet();
+            final var timeUntilNextRoll =
+                    user.getNextRandomSpotGeneratedTime() == null
+                            ? Duration.ZERO
+                            : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+            googleUserDTO.setTimeUntilNextRoll(timeUntilNextRoll);
+            googleUserDTO.setId(user.getId());
+
+            if (userRepository.existsUserByEmail(user.getEmail())) {
+                return googleUserDTO;
+            } else {
+                userRepository.insert(user);
+            }
             return googleUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");
@@ -132,29 +145,41 @@ public class AuthenticationService {
         }
     }
 
+    @Transactional
     public FacebookUserDTO loginWithFacebook(String accessToken) {
         WebClient webClient = WebClient.create();
         try {
             final var facebookUserDTO =
                     webClient
                             .get()
-                            .uri("https://graph.facebook.com/v13.0/me?fields=id,name,picture,email")
+                            .uri("https://graph.facebook.com/v13.0/me?fields=id,name,picture.height(960),email")
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(FacebookUserDTO.class)
                             .block();
             final var user =
                     User.builder()
-                            .id(userId.get())
-                            .username(facebookUserDTO.getEmail())
+                            .id(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME))
+                            .username(facebookUserDTO.getName())
                             .email(facebookUserDTO.getEmail())
                             .picture(facebookUserDTO.getPicture().getData().getUrl())
+                            .emailVerified(true)
+                            .conqueredSpots(new ArrayList<>())
                             .build();
             userRepository.insert(user);
             facebookUserDTO.setJwtToken(jwtService.generateToken(user));
-            facebookUserDTO.setTimeUntilNextRoll(
-                    Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime()));
-            userId.incrementAndGet();
+            Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+            facebookUserDTO.setId(user.getId());
+            final var timeUntilNextRoll =
+                    user.getNextRandomSpotGeneratedTime() == null
+                            ? Duration.ZERO
+                            : Duration.between(LocalDateTime.now(), user.getNextRandomSpotGeneratedTime());
+            facebookUserDTO.setTimeUntilNextRoll(timeUntilNextRoll);
+            if (userRepository.existsUserByEmail(user.getEmail())) {
+                return facebookUserDTO;
+            } else {
+                userRepository.insert(user);
+            }
             return facebookUserDTO;
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExistsException("User already exists!");
@@ -169,6 +194,7 @@ public class AuthenticationService {
         redis.opsForValue().set(request.getRemoteAddr(), jwt);
     }
 
+    @Transactional
     public void verifyEmail(String code) {
         final var verificationCode =
                 verificationCodeRepository
@@ -201,7 +227,7 @@ public class AuthenticationService {
                 VerificationCode.builder()
                         .code(verificationCode)
                         .email(userEmail)
-                        .id(codeId.getAndIncrement())
+                        .id(sequenceGeneratorService.generateSequence(VerificationCode.SEQUENCE_NAME))
                         .build();
         verificationCodeRepository.insert(code);
     }

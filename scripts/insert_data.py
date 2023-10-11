@@ -8,7 +8,7 @@ mongo_port = 27017
 # Connect to MongoDB
 client = MongoClient(mongo_host, mongo_port)
 db = client["spots"]
-spotsCollection= db["spots"]
+spotsCollection= db["spot"]
 sequenceCollection= db["database_sequences"]
 
 # Function to insert data from a JSON file into MongoDB

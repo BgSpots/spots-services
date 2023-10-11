@@ -1,7 +1,6 @@
 package com.spots.service.common;
 
 import com.spots.domain.DatabaseSequence;
-import com.spots.domain.User;
 import com.spots.repository.DatabaseSequenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ public class SequenceGeneratorService {
         final var counter =
                 databaseSequenceRepository
                         .findById(seqName)
-                        .orElseGet(() -> new DatabaseSequence(User.SEQUENCE_NAME, 1L));
+                        .orElseGet(() -> new DatabaseSequence(seqName, 1L));
         final var index = counter.getSeq();
         counter.setSeq(index + 1);
         databaseSequenceRepository.save(counter);

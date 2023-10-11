@@ -222,7 +222,6 @@ public class AuthenticationService {
 
         helper.setText(emailContent, true);
 
-        mailSender.send(message);
         final var code =
                 VerificationCode.builder()
                         .code(verificationCode)
@@ -230,6 +229,7 @@ public class AuthenticationService {
                         .id(sequenceGeneratorService.generateSequence(VerificationCode.SEQUENCE_NAME))
                         .build();
         verificationCodeRepository.insert(code);
+        mailSender.send(message);
     }
 
     private String generateRandomCode(String userEmail) {

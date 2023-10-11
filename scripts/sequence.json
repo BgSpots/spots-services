@@ -1,0 +1,7 @@
+[
+  {
+    "_class": "com.spots.domain.DatabaseSequence",
+    "_id": "spots_sequence",
+    "seq": 11
+  }
+]

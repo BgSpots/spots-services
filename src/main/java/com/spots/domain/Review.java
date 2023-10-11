@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -19,4 +20,6 @@ public class Review {
     private float rating;
 
     private String comment;
+
+    @Transient public static final String SEQUENCE_NAME = "review_sequence";
 }

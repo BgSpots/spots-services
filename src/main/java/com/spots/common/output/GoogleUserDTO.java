@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class GoogleUserDTO {
+
+    private long id;
     private String email;
     private boolean verifiedEmail;
     private String name;
@@ -16,7 +18,6 @@ public class GoogleUserDTO {
 
     @JsonCreator
     public GoogleUserDTO(
-            @JsonProperty("id") String id,
             @JsonProperty("email") String email,
             @JsonProperty("verifiedEmail") boolean verifiedEmail,
             @JsonProperty("name") String name,

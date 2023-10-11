@@ -2,6 +2,7 @@ package com.spots.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -17,4 +18,6 @@ public class Payment {
     private String uri;
     private boolean used;
     private boolean isAdWatched;
+
+    @Transient public static final String SEQUENCE_NAME = "payment_sequence";
 }

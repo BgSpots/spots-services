@@ -6,6 +6,7 @@ import com.spots.common.input.RegisterBody;
 import com.spots.domain.VerificationCode;
 import com.spots.repository.UserRepository;
 import com.spots.repository.VerificationCodeRepository;
+import com.spots.service.common.SequenceGeneratorService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class AuthenticationServiceTest {
     @InjectMocks private AuthenticationService authenticationService;
     @Mock private JavaMailSender mailSender;
-
+    @Mock private SequenceGeneratorService sequenceGeneratorService;
     @Mock private VerificationCodeRepository verificationCodeRepository;
 
     @Mock private UserRepository userRepository;
@@ -40,6 +41,7 @@ class AuthenticationServiceTest {
                 mock(VerificationCode.class); // Adjust the class name accordingly
         when(verificationCodeRepository.save(any(VerificationCode.class)))
                 .thenReturn(verificationCodeMock);
+        when(sequenceGeneratorService.generateSequence(any())).thenReturn(1L);
 
         MimeMessage mimeMessageMock = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessageMock);

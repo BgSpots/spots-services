@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private boolean emailVerified;
+    @Transient public static final String SEQUENCE_NAME = "users_sequence";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

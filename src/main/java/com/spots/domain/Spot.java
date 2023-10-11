@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -21,4 +22,5 @@ public class Spot {
     private float overallRating;
 
     private String imageBase64;
+    @Transient public static final String SEQUENCE_NAME = "spot_sequence";
 }

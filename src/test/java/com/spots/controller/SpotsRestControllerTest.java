@@ -25,6 +25,7 @@ import com.spots.repository.UserRepository;
 import com.spots.repository.VerificationCodeRepository;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.JwtService;
+import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.spots.SpotsService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +63,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 public class SpotsRestControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private SpotsService spotsService;
+    @MockBean private SequenceGeneratorService sequenceGeneratorService;
     @MockBean private JavaMailSender javaMailSender;
     @MockBean private VerificationCodeRepository verificationCodeRepository;
     @MockBean private SpotsRepository spotsRepository;

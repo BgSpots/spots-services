@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class FacebookUserDTO {
+    private long id;
     private String name;
     private PictureDataDTO picture;
     private String email;

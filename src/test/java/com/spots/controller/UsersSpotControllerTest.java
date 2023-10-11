@@ -15,6 +15,7 @@ import com.spots.repository.UserRepository;
 import com.spots.repository.VerificationCodeRepository;
 import com.spots.service.auth.AuthenticationService;
 import com.spots.service.auth.JwtService;
+import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.user.UserService;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class UsersSpotControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private UserService userService;
     @MockBean private JavaMailSender javaMailSender;
+    @MockBean private SequenceGeneratorService sequenceGeneratorService;
     @MockBean private VerificationCodeRepository verificationCodeRepository;
     @MockBean private UserRepository userRepository;
     @SpyBean private AuthenticationService authenticationService;

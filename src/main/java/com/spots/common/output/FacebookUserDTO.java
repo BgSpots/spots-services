@@ -11,8 +11,8 @@ public class FacebookUserDTO {
     private String email;
     private String jwtToken;
     private Duration timeUntilNextRoll;
+    private long currentSpotId;
 
-    // Define the inner class for "PictureDataDTO"
     @Data
     public static class PictureDataDTO {
         private PictureDTO data;
@@ -23,6 +23,7 @@ public class FacebookUserDTO {
         private int height;
         private boolean isSilhouette;
         private String url;
+        private String picture;
         private int width;
     }
 }

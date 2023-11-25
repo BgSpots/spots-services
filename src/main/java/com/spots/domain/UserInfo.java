@@ -10,5 +10,5 @@ public class UserInfo {
 
     private String username;
 
-    private String profilePicture;
+    private String imageName;
 }

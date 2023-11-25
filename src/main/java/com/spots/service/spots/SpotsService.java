@@ -51,7 +51,7 @@ public class SpotsService {
                         .location(location)
                         .overallRating(1)
                         .description(spotDto.getDescription())
-                        .imageBase64(spotDto.getImageBase64())
+                        .imageBase64(spotDto.getImageName())
                         .build();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
@@ -155,7 +155,7 @@ public class SpotsService {
                 UserInfo.builder()
                         .userId(user.getId())
                         .username(user.getUsername())
-                        .profilePicture(user.getPicture())
+                        .imageName(user.getImageName())
                         .build();
         review.setUserInfo(reviewerInfo);
 

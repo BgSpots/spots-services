@@ -17,7 +17,7 @@ public class User implements UserDetails {
     private long id;
     private Role role;
     private String username;
-    private String picture;
+    private String imageName;
     private LocalDateTime nextRandomSpotGeneratedTime;
     private long currentSpotId;
     private List<Long> conqueredSpots;

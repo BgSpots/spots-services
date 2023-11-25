@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UserBody {
@@ -17,7 +18,7 @@ public class UserBody {
     @Size(min = 5, max = 15, message = "Password should be between 5 and 15 characters!")
     private String password;
 
-    private String picture;
+    private String imageName;
 
     private long timeUntilNextRoll;
 

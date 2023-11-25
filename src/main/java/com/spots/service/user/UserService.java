@@ -11,13 +11,22 @@ import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.spots.SpotConqueredException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
+import java.util.Random;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.spots.SpotsServicesApplication.IMAGE_DIR;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +36,44 @@ public class UserService {
     private final GenericValidator<User> userValidator = new GenericValidator<>();
     private final PasswordEncoder passwordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
+
+
+    private static String generateRandomName(int length) {
+        // Define the characters that can be used in the random string
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+        // Create a StringBuilder to store the random string
+        StringBuilder randomString = new StringBuilder();
+
+        // Create a Random object
+        Random random = new Random();
+
+        // Generate random characters and append them to the StringBuilder
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(characters.length());
+            char randomChar = characters.charAt(randomIndex);
+            randomString.append(randomChar);
+        }
+
+        // Convert StringBuilder to String and return
+        return randomString.toString();
+    }
+    private String createImage(String base64){
+        byte[] imageBytes = Base64.getDecoder().decode(base64);
+        String imageName="image_"+generateRandomName(6)+".png";
+
+        String imagePath = IMAGE_DIR + imageName;
+
+        try {
+            Path imagePathObj = Path.of(imagePath);
+            Files.write(imagePathObj, imageBytes, StandardOpenOption.CREATE);
+
+            return imageName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @Transactional
     public void createUser(UserBody userBody) {
@@ -51,7 +98,7 @@ public class UserService {
                 userRepository
                         .findUserByEmail(userBody.getEmail())
                         .orElseThrow(() -> new InvalidUserException("User does not exist!"));
-        user.setPicture(userBody.getPicture());
+        user.setImageName(createImage(userBody.getImageName()));
         userValidator.validate(user);
         userRepository.save(user);
     }

@@ -21,6 +21,6 @@ public class Spot {
     @Max(value = 10, message = "Overall rating must be between 1 and 10.")
     private float overallRating;
 
-    private String imageBase64;
+    private String imageName;
     @Transient public static final String SEQUENCE_NAME = "spot_sequence";
 }

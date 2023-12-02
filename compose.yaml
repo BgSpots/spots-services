@@ -3,7 +3,13 @@ version: '3.9'
 services:
   mongo:
     image: mongo:bionic
-    command: --replSet rs0
+    command: >
+      bash -c "
+        mongod --replSet rs0 --bind_ip_all &
+        until mongo --eval 'rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"localhost:27017\"}]})'; do
+          sleep 1
+        done
+        wait"
     ports:
       - "27017:27017"
     container_name: mongo

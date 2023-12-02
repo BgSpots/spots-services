@@ -12,6 +12,17 @@ import java.io.IOException;
 @SpringBootApplication
 @OpenAPIDefinition
 public class SpotsServicesApplication extends SpringBootServletInitializer {
+    private static final String IMAGES_FOLDER_NAME = "images";
+    private static final File BASE_DIR;
+
+    static {
+        try {
+            BASE_DIR = new File(".").getCanonicalFile();
+        } catch (IOException e) {
+            throw new RuntimeException("Error getting the base directory", e);
+        }
+    }
+
     public static String IMAGE_DIR;
 
     @Override
@@ -19,7 +30,7 @@ public class SpotsServicesApplication extends SpringBootServletInitializer {
         return application.sources(SpotsServicesApplication.class);
     }
     public static void main(String[] args) throws IOException {
-        IMAGE_DIR = new File(".").getCanonicalPath() + "\\images\\";
+        IMAGE_DIR = new File(BASE_DIR, IMAGES_FOLDER_NAME).getPath()+File.separator;
         SpringApplication.run(SpotsServicesApplication.class, args);
     }
 }

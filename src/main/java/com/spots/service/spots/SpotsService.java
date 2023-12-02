@@ -51,7 +51,7 @@ public class SpotsService {
                         .location(location)
                         .overallRating(1)
                         .description(spotDto.getDescription())
-                        .imageBase64(spotDto.getImageName())
+                        .imageName(spotDto.getImageName())
                         .build();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
@@ -93,7 +93,6 @@ public class SpotsService {
     @Transactional
     public Spot getRandomSpot(String authHeader) {
         if (spotsRepository.count() == 0) throw new InvalidSpotIdException("No spots available yet");
-        Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
         String jwt = authHeader.substring(7);
         final var user =
                 userRepository
@@ -110,20 +109,20 @@ public class SpotsService {
         } else {
             if (payment.isUsed()) throw new SpotRerollAlreadyUsed("Spot reroll already used!");
         }
-        while (true) {
-            final var randomSpot = spotsRepository.findById(randomIndex);
-            if (randomSpot.isPresent()) {
-                user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
-                user.setCurrentSpotId(randomIndex);
-                if (isPayed) {
-                    payment.setUsed(true);
-                    paymentRepository.save(payment);
-                }
-                userRepository.save(user);
-                return randomSpot.get();
-            }
-            randomIndex = random.nextLong(spotsRepository.count());
+        Long firstSpotId = spotsRepository.findFirstByOrderByIdAsc().get().getId();
+        Long lastSpotId = spotsRepository.findFirstByOrderByIdDesc().get().getId();
+
+        long randomIndex = new Random().longs(firstSpotId, lastSpotId).findFirst().getAsLong();
+
+        final var randomSpot = spotsRepository.findById(randomIndex);
+        user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
+        user.setCurrentSpotId(randomIndex);
+        if (isPayed) {
+            payment.setUsed(true);
+            paymentRepository.save(payment);
         }
+        userRepository.save(user);
+        return randomSpot.get();
     }
 
     public List<Review> getSpotReviews(Long spotId, Integer pageNum) {

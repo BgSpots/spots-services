@@ -31,7 +31,7 @@ public class SpotsService {
     private final GenericValidator<Spot> spotValidator = new GenericValidator<>();
     private final GenericValidator<Review> reviewValidator = new GenericValidator<>();
     private final UserRepository userRepository;
-    private static final Random random = new Random();
+
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
     private final PaymentRepository paymentRepository;

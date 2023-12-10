@@ -70,8 +70,7 @@ public class UserService {
 
             return imageName;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new  InvalidImageException("Something went wrong recreating the image "+e.getMessage());
         }
     }
 

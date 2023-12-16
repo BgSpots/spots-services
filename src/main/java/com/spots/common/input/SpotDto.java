@@ -12,5 +12,5 @@ public class SpotDto {
     private String name;
     private LocationBody location;
     private String description;
-    private String imageBase64;
+    private String imageName;
 }

@@ -31,11 +31,12 @@ public class SpotsService {
     private final GenericValidator<Spot> spotValidator = new GenericValidator<>();
     private final GenericValidator<Review> reviewValidator = new GenericValidator<>();
     private final UserRepository userRepository;
-    private static final Random random = new Random();
+
     private final JwtService jwtService;
     private final ReviewRepository reviewRepository;
     private final PaymentRepository paymentRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final Random random = new Random();
 
     @Transactional
     public void createSpot(SpotDto spotDto) {
@@ -51,7 +52,7 @@ public class SpotsService {
                         .location(location)
                         .overallRating(1)
                         .description(spotDto.getDescription())
-                        .imageBase64(spotDto.getImageBase64())
+                        .imageName(spotDto.getImageName())
                         .build();
         spotValidator.validate(spot);
         if (spotsRepository.existsSpotByName(spot.getName())) {
@@ -93,7 +94,6 @@ public class SpotsService {
     @Transactional
     public Spot getRandomSpot(String authHeader) {
         if (spotsRepository.count() == 0) throw new InvalidSpotIdException("No spots available yet");
-        Long randomIndex = random.nextLong(spotsRepository.count()) + 1;
         String jwt = authHeader.substring(7);
         final var user =
                 userRepository
@@ -110,20 +110,18 @@ public class SpotsService {
         } else {
             if (payment.isUsed()) throw new SpotRerollAlreadyUsed("Spot reroll already used!");
         }
-        while (true) {
-            final var randomSpot = spotsRepository.findById(randomIndex);
-            if (randomSpot.isPresent()) {
-                user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
-                user.setCurrentSpotId(randomIndex);
-                if (isPayed) {
-                    payment.setUsed(true);
-                    paymentRepository.save(payment);
-                }
-                userRepository.save(user);
-                return randomSpot.get();
-            }
-            randomIndex = random.nextLong(spotsRepository.count());
-        }
+        var firstSpotId = spotsRepository.findFirstByOrderByIdAsc().get().getId();
+        var lastSpotId = spotsRepository.findFirstByOrderByIdDesc().get().getId();
+
+        var randomIndex = random.longs(firstSpotId, lastSpotId).findFirst().getAsLong();
+
+        final var randomSpot = spotsRepository.findById(randomIndex);
+        user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
+        user.setCurrentSpotId(randomIndex);
+        payment.setUsed(true);
+        paymentRepository.save(payment);
+        userRepository.save(user);
+        return randomSpot.get();
     }
 
     public List<Review> getSpotReviews(Long spotId, Integer pageNum) {
@@ -155,7 +153,7 @@ public class SpotsService {
                 UserInfo.builder()
                         .userId(user.getId())
                         .username(user.getUsername())
-                        .profilePicture(user.getPicture())
+                        .imageName(user.getImageName())
                         .build();
         review.setUserInfo(reviewerInfo);
 

@@ -17,7 +17,7 @@ public class UserBody {
     @Size(min = 5, max = 15, message = "Password should be between 5 and 15 characters!")
     private String password;
 
-    private String picture;
+    private String imageName;
 
     private long timeUntilNextRoll;
 

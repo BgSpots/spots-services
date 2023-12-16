@@ -7,7 +7,7 @@ import lombok.Data;
 public class FacebookUserDTO {
     private long id;
     private String name;
-    private PictureDataDTO picture;
+    private PictureDataDTO imageUrl;
     private String email;
     private String jwtToken;
     private Duration timeUntilNextRoll;
@@ -23,7 +23,7 @@ public class FacebookUserDTO {
         private int height;
         private boolean isSilhouette;
         private String url;
-        private String picture;
+        private String imageUrl;
         private int width;
     }
 }

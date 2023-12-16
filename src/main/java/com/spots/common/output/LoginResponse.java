@@ -13,6 +13,6 @@ public class LoginResponse {
     private String accessToken;
     private long timeUntilNextRoll;
     private long currentSpotId;
-    private String picture;
+    private String imageName;
     private long id;
 }

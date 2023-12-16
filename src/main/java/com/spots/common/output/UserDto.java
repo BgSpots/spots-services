@@ -13,7 +13,7 @@ public class UserDto {
     private long id;
     private Role role;
     private String username;
-    private String picture;
+    private String imageName;
     private LocalDateTime nextRandomSpotGeneratedTime;
     private long currentSpotId;
     private List<Long> conqueredSpots;
@@ -27,7 +27,7 @@ public class UserDto {
                 .id(user.getId())
                 .role(user.getRole())
                 .username(user.getUsername())
-                .picture(user.getPicture())
+                .imageName(user.getImageName())
                 .nextRandomSpotGeneratedTime(user.getNextRandomSpotGeneratedTime())
                 .currentSpotId(user.getCurrentSpotId())
                 .conqueredSpots(user.getConqueredSpots())

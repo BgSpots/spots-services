@@ -8,7 +8,7 @@ public class GoogleUserDTO {
     private String id;
     private String email;
     private String name;
-    private String picture;
+    private String imageUrl;
     private String jwtToken;
     private Duration timeUntilNextRoll;
     private long currentSpotId;

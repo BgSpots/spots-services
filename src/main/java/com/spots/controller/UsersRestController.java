@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
-class UserRestController {
+class UsersRestController {
     private final UserService userService;
 
     @GetMapping

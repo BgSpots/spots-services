@@ -1,124 +1,122 @@
 [
-  [
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 1,
-      "name": "Трибуните на Панчерево",
-      "location": {
-        "latitude": 42.59337282282072,
-        "longitude": 23.42229715843945
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 1,
+    "name": "Трибуните на Панчерево",
+    "location": {
+      "latitude": 42.59337282282072,
+      "longitude": 23.42229715843945
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 2,
-      "name": "Ливада spot",
-      "location": {
-        "latitude": 42.646129232862606,
-        "longitude": 23.12763776136458
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 2,
+    "name": "Ливада spot",
+    "location": {
+      "latitude": 42.646129232862606,
+      "longitude": 23.12763776136458
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 3,
-      "name": "Езеро сълзата",
-      "location": {
-        "latitude": 42.646129232862606,
-        "longitude": 23.12763776136458
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 3,
+    "name": "Езеро сълзата",
+    "location": {
+      "latitude": 42.646129232862606,
+      "longitude": 23.12763776136458
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 4,
-      "name": "Езеро сълзата",
-      "location": {
-        "latitude": 42.4328727,
-        "longitude": 23.5781612
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 4,
+    "name": "Езеро сълзата",
+    "location": {
+      "latitude": 42.4328727,
+      "longitude": 23.5781612
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 5,
-      "name": "Връх Мусала",
-      "location": {
-        "latitude": 42.1792263,
-        "longitude": 23.5852096
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 5,
+    "name": "Връх Мусала",
+    "location": {
+      "latitude": 42.1792263,
+      "longitude": 23.5852096
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 6,
-      "name": "Белоградчѝшките скали",
-      "location": {
-        "latitude": 43.6211471,
-        "longitude": 22.6843025
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 6,
+    "name": "Белоградчѝшките скали",
+    "location": {
+      "latitude": 43.6211471,
+      "longitude": 22.6843025
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 7,
-      "name": "Паметник на Бузлуджа",
-      "location": {
-        "latitude": 42.733348,
-        "longitude": 25.3897003
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 7,
+    "name": "Паметник на Бузлуджа",
+    "location": {
+      "latitude": 42.733348,
+      "longitude": 25.3897003
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 8,
-      "name": "Смолянските езера",
-      "location": {
-        "latitude": 41.6286696,
-        "longitude": 24.6705837
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 8,
+    "name": "Смолянските езера",
+    "location": {
+      "latitude": 41.6286696,
+      "longitude": 24.6705837
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 9,
-      "name": "Враца Балкан Nature Park",
-      "location": {
-        "latitude": 43.207949899999996,
-        "longitude": 23.5973433
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 9,
+    "name": "Враца Балкан Nature Park",
+    "location": {
+      "latitude": 43.207949899999996,
+      "longitude": 23.5973433
     },
-    {
-      "_class": "com.spots.domain.Spot",
-      "_id": 10,
-      "name": "Искарска клисура",
-      "location": {
-        "latitude": 43.0489781,
-        "longitude": 23.2457519
-      },
-      "description": "description 1",
-      "imageName":"default-profile.png",
-      "overallRating" : 1
-    }
-  ]
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  },
+  {
+    "_class": "com.spots.domain.Spot",
+    "_id": 10,
+    "name": "Искарска клисура",
+    "location": {
+      "latitude": 43.0489781,
+      "longitude": 23.2457519
+    },
+    "description": "description 1",
+    "imageName":"default-profile.png",
+    "overallRating" : 1
+  }
 ]

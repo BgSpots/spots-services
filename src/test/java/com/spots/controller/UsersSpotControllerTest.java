@@ -46,7 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@WebMvcTest(controllers = {UserRestController.class})
+@WebMvcTest(controllers = {UsersRestController.class})
 @AutoConfigureMockMvc
 @Import(SecurityConfiguration.class)
 public class UsersSpotControllerTest {

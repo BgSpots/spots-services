@@ -36,6 +36,7 @@ public class SpotsService {
     private final ReviewRepository reviewRepository;
     private final PaymentRepository paymentRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final Random random = new Random();
 
     @Transactional
     public void createSpot(SpotDto spotDto) {
@@ -109,18 +110,16 @@ public class SpotsService {
         } else {
             if (payment.isUsed()) throw new SpotRerollAlreadyUsed("Spot reroll already used!");
         }
-        Long firstSpotId = spotsRepository.findFirstByOrderByIdAsc().get().getId();
-        Long lastSpotId = spotsRepository.findFirstByOrderByIdDesc().get().getId();
+        var firstSpotId = spotsRepository.findFirstByOrderByIdAsc().get().getId();
+        var lastSpotId = spotsRepository.findFirstByOrderByIdDesc().get().getId();
 
-        long randomIndex = new Random().longs(firstSpotId, lastSpotId).findFirst().getAsLong();
+        var randomIndex = random.longs(firstSpotId, lastSpotId).findFirst().getAsLong();
 
         final var randomSpot = spotsRepository.findById(randomIndex);
         user.setNextRandomSpotGeneratedTime(LocalDateTime.now().plus(Duration.ofDays(7)));
         user.setCurrentSpotId(randomIndex);
-        if (isPayed) {
-            payment.setUsed(true);
-            paymentRepository.save(payment);
-        }
+        payment.setUsed(true);
+        paymentRepository.save(payment);
         userRepository.save(user);
         return randomSpot.get();
     }

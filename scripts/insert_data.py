@@ -15,7 +15,7 @@ sequenceCollection= db["database_sequences"]
 def insert_data_from_json(json_file, collection):
   with open(json_file, "r",encoding="utf-8") as file:
     data = json.load(file)
-    inserted_ids = collection.insert_many(data[0])
+    inserted_ids = collection.insert_many(data)
 
   return len(inserted_ids.inserted_ids)
 

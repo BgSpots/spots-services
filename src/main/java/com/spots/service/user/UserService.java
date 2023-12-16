@@ -1,5 +1,7 @@
 package com.spots.service.user;
 
+import static com.spots.SpotsServicesApplication.IMAGE_DIR;
+
 import com.spots.common.GenericValidator;
 import com.spots.common.input.ConquerBody;
 import com.spots.common.input.UserBody;
@@ -11,7 +13,6 @@ import com.spots.repository.UserRepository;
 import com.spots.service.auth.EmailTakenException;
 import com.spots.service.common.SequenceGeneratorService;
 import com.spots.service.spots.SpotConqueredException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -20,13 +21,10 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.spots.SpotsServicesApplication.IMAGE_DIR;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +34,6 @@ public class UserService {
     private final GenericValidator<User> userValidator = new GenericValidator<>();
     private final PasswordEncoder passwordEncoder;
     private final SequenceGeneratorService sequenceGeneratorService;
-
 
     private static String generateRandomName(int length) {
         // Define the characters that can be used in the random string
@@ -58,9 +55,10 @@ public class UserService {
         // Convert StringBuilder to String and return
         return randomString.toString();
     }
-    private String createImage(String base64){
+
+    private String createImage(String base64) {
         byte[] imageBytes = Base64.getDecoder().decode(base64);
-        String imageName="image_"+generateRandomName(6)+".png";
+        String imageName = "image_" + generateRandomName(6) + ".png";
 
         String imagePath = IMAGE_DIR + imageName;
 
@@ -70,7 +68,8 @@ public class UserService {
 
             return imageName;
         } catch (Exception e) {
-            throw new  InvalidImageException("Something went wrong recreating the image "+e.getMessage());
+            throw new InvalidImageException(
+                    "Something went wrong recreating the image " + e.getMessage());
         }
     }
 

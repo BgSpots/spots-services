@@ -25,7 +25,8 @@ public class SecurityConfiguration {
         "/auth/register/**",
         "/swagger-ui/index.html",
         "/swagger-ui/**",
-        "/v3/api-docs/**","/images/**"
+        "/v3/api-docs/**",
+        "/images/**"
     };
 
     @Bean

@@ -48,7 +48,7 @@ public class AuthenticationService {
     private final GenericValidator<RegisterBody> registerValidator = new GenericValidator<>();
     private final RedisTemplate<String, String> redis;
     private final JavaMailSender mailSender;
-    private final String defaultProfilePictureName="default-profile.png";
+    private final String defaultProfilePictureName = "default-profile.png";
 
     @Transactional
     public void register(RegisterBody body) throws MessagingException {
@@ -65,7 +65,7 @@ public class AuthenticationService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setImageName(defaultProfilePictureName);
-       if (userRepository.existsUserByEmail(user.getEmail())) {
+        if (userRepository.existsUserByEmail(user.getEmail())) {
             throw new EmailTakenException("User with that email already exists");
         }
         sendVerificationEmail(user.getEmail());
